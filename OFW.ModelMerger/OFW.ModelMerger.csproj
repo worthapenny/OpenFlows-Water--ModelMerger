@@ -1,0 +1,94 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants)DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DefineConstants>$(DefineConstants)DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>$(DefineConstants)DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <DefineConstants>$(DefineConstants)DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="cd $(ProjectDir)&#xD;&#xA;call _setup.bat &quot;$(TargetDir)&quot;" />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="DataTablePrettyPrinter" Version="0.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Haestad.Domain">
+      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.Domain.dll</HintPath>
+      <CopyLocal>False</CopyLocal>
+    </Reference>
+    <Reference Include="Haestad.Domain.DataExchange">
+      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.Domain.DataExchange.dll</HintPath>
+    </Reference>
+    <Reference Include="Haestad.Domain.ModelingObjects.Water">
+      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.Domain.ModelingObjects.Water.dll</HintPath>
+      <CopyLocal>False</CopyLocal>
+    </Reference>
+    <Reference Include="Haestad.Drawing">
+      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="Haestad.Drawing.Control">
+      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.Drawing.Control.dll</HintPath>
+      <CopyLocal>False</CopyLocal>
+    </Reference>
+    <Reference Include="Haestad.Drawing.Domain">
+      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.Drawing.Domain.dll</HintPath>
+      <CopyLocal>False</CopyLocal>
+    </Reference>
+    <Reference Include="Haestad.Framework">
+      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.Framework.dll</HintPath>
+      <CopyLocal>False</CopyLocal>
+    </Reference>
+    <Reference Include="Haestad.Framework.Windows.Forms">
+      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.Framework.Windows.Forms.dll</HintPath>
+      <CopyLocal>False</CopyLocal>
+    </Reference>
+    <Reference Include="Haestad.LicensingFacade">
+      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.LicensingFacade.dll</HintPath>
+      <CopyLocal>False</CopyLocal>
+    </Reference>
+    <Reference Include="Haestad.Support">
+      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.Support.dll</HintPath>
+      <CopyLocal>False</CopyLocal>
+    </Reference>
+    <Reference Include="Haestad.Water.DataExchange">
+      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.Water.DataExchange.dll</HintPath>
+    </Reference>
+    <Reference Include="Haestad.WaterProduct">
+      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.WaterProduct.dll</HintPath>
+      <CopyLocal>False</CopyLocal>
+    </Reference>
+    <Reference Include="OpenFlows">
+      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\OpenFlows.dll</HintPath>
+      <CopyLocal>False</CopyLocal>
+    </Reference>
+    <Reference Include="OpenFlows.Water">
+      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\OpenFlows.Water.dll</HintPath>
+      <CopyLocal>False</CopyLocal>
+    </Reference>
+    <Reference Include="OpenFlows.Water.Application">
+      <HintPath>..\..\..\..\..\Perforce\Aspen\Components\OpenFlows.Water.Application\Assemblies\_LastKnownGood\OpenFlows.Water.Application.dll</HintPath>
+      <CopyLocal>False</CopyLocal>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
+</Project>
