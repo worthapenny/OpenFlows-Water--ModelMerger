@@ -1,4 +1,12 @@
-﻿using Haestad.Framework.Application;
+﻿/**
+ * @ Author: Akshaya Niraula
+ * @ Create Time: 2021-10-23 07:07:23
+ * @ Modified by: Akshaya Niraula
+ * @ Modified time: 2021-10-26 17:32:58
+ * @ Copyright: Copyright (c) 2021 Akshaya Niraula See LICENSE for details
+ */
+
+using Haestad.Framework.Application;
 using Haestad.Support.User;
 using OpenFlows.Water.Domain;
 using System;
@@ -40,7 +48,7 @@ namespace OFW.ModelMerger.Domain
             // Make sure directory is created
             if (!Directory.Exists(filepath)) Directory.CreateDirectory(filepath);
 
-            // Slect all elements in the model
+            // Select all elements in the model
             var elements = WaterModel
                 .Network
                 .Elements()

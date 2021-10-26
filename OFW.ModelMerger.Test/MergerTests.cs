@@ -1,3 +1,11 @@
+/**
+ * @ Author: Akshaya Niraula
+ * @ Create Time: 2021-10-22 18:57:34
+ * @ Modified by: Akshaya Niraula
+ * @ Modified time: 2021-10-26 17:34:21
+ * @ Copyright: Copyright (c) 2021 Akshaya Niraula See LICENSE for details
+ */
+
 using Haestad.Support.User;
 using NUnit.Framework;
 using OFW.ModelMerger.Domain;
@@ -69,7 +77,7 @@ namespace OFW.ModelMerger.Test
 
             // Modifition Test
             var modifier = new ModifyLabels(WaterModel);
-            modifier.ModifiyLabels(Options, new NullProgressIndicator());
+            modifier.Modify(Options, new NullProgressIndicator());
 
             if (Options.ModificationType == LabelModificationType.Prefix)
             {
@@ -119,6 +127,12 @@ namespace OFW.ModelMerger.Test
             Assert.AreEqual(componentsTable.Count(s => s == '\n'), 18);
             Assert.AreEqual(componentsCountSummary.ElementsCountMap.Count, Enum.GetValues(typeof(IdahoSupportElementTypes)).Length);
 
+            // Scenario / Alternative / Calc Options / SelectionSet
+            var sacss = WaterModel.SnroAltCalcsSelSetSummary();
+            var sacssTable = sacss.ToString();
+            sacss.AddModel(WaterModel);
+            Assert.AreEqual(sacssTable.Count(s => s == '\n'), 30);
+            Assert.AreEqual(elementsCountSummary.ElementsCountMap.Count, Enum.GetValues(typeof(WaterNetworkElementType)).Length);
 
             // Add another model
             OpenFlowsWater.SetMaxProjects(5);
@@ -127,9 +141,10 @@ namespace OFW.ModelMerger.Test
             {
                 elementsCountSummary.AddNetwork(waterModel);
                 componentsCountSummary.AddModel(waterModel);
+                sacss.AddModel(waterModel);
             }
-
-            // Netowork Table
+            
+            // Network Table
             Console.WriteLine("After adding another model");
             networkTable = elementsCountSummary.ToString();
             Assert.AreEqual(networkTable.Count(s => s == '\n'), 40);
@@ -141,6 +156,11 @@ namespace OFW.ModelMerger.Test
             Console.WriteLine(componentsTable);
 
 
+            // Scenario / Alternative / Calc Options / SelectionSet
+            sacssTable = sacss.ToString();
+            Assert.AreEqual(sacssTable.Count(s => s == '\n'), 30);
+            Console.WriteLine(sacssTable);
+
             // Pipe Diameter Table
             Console.WriteLine();
 
@@ -149,8 +169,15 @@ namespace OFW.ModelMerger.Test
 
             var diaTable = diaSummary.ToString();
             Assert.AreEqual(diaTable.Count(s => (s == '\n')), diaSummary.DistinctDiameters.Count + 6);
-
             Console.WriteLine(diaTable);
+
+
+            // All In one (Model Summary)
+            var modelSummaryTable = WaterModel.ModelSummary().ToString();
+            Assert.AreEqual(modelSummaryTable.Count(s => s == '\n'), 113);
+            Console.WriteLine();
+            Console.WriteLine("All Tables at once");
+            Console.WriteLine(modelSummaryTable);
         }
         #endregion
 

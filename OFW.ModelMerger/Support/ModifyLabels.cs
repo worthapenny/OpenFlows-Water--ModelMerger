@@ -1,4 +1,12 @@
-﻿using System.IO;
+﻿/**
+ * @ Author: Akshaya Niraula
+ * @ Create Time: 2021-10-22 19:16:18
+ * @ Modified by: Akshaya Niraula
+ * @ Modified time: 2021-10-26 17:56:19
+ * @ Copyright: Copyright (c) 2021 Akshaya Niraula See LICENSE for details
+ */
+
+using System.IO;
 using Haestad.Support.User;
 using OFW.ModelMerger.Domain;
 using OFW.ModelMerger.Extentions;
@@ -17,7 +25,7 @@ namespace OFW.ModelMerger.Support
         #endregion
 
         #region Public Methods
-        public void ModifiyLabels(LabelModificationOptions options, IProgressIndicator pi)
+        public void Modify(LabelModificationOptions options, IProgressIndicator pi)
         {
             string projectLabel = options.ShortName;
             pi.AddTask($"Modifying {projectLabel}'s labels for Network elements...");
@@ -29,7 +37,7 @@ namespace OFW.ModelMerger.Support
 
             ModifyDomainELementsLabels(options, pi);
             ModifySupportElementTypesLabels(options, pi);
-            ModifySelecionSetsLabels(options, pi);
+            ModifySelectionSetsLabels(options, pi);
             ModifyScenariosLabels(options, pi);
             ModifyAlternativesLabels(options, pi);
             ModifyCalculationOptionsLabels(options, pi);
@@ -82,7 +90,7 @@ namespace OFW.ModelMerger.Support
 
             pi.EndTask();
         }
-        private void ModifySelecionSetsLabels(LabelModificationOptions options, IProgressIndicator pi)
+        private void ModifySelectionSetsLabels(LabelModificationOptions options, IProgressIndicator pi)
         {
             var sss = WaterModel.SelectionSets.Elements();
 

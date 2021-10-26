@@ -1,4 +1,12 @@
-﻿using System;
+﻿/**
+ * @ Author: Akshaya Niraula
+ * @ Create Time: 2021-10-22 19:19:33
+ * @ Modified by: Akshaya Niraula
+ * @ Modified time: 2021-10-26 17:33:15
+ * @ Copyright: Copyright (c) 2021 Akshaya Niraula See LICENSE for details
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -8,6 +16,8 @@ using OpenFlows.Domain.DataObjects;
 using OpenFlows.Water.Domain;
 using OpenFlows.Water.Domain.ModelingElements.Components;
 using OpenFlows.Water.Domain.ModelingElements.NetworkElements;
+using static OFW.ModelMerger.Extentions.AlternativeExtensions;
+using static OFW.ModelMerger.Extentions.CalcOptionsExtensions;
 
 namespace OFW.ModelMerger.Extentions
 {
@@ -15,7 +25,7 @@ namespace OFW.ModelMerger.Extentions
     #region Extensions
     public static class WaterModelExtensions
     {
-        public static IWaterModelSummary WaterModelSummary(this IWaterModel waterModel)
+        public static IWaterModelSummary ModelSummary(this IWaterModel waterModel)
         {
             return new WaterModelSummary(waterModel);
         }
@@ -34,10 +44,143 @@ namespace OFW.ModelMerger.Extentions
             return new WaterComponentsCountSummary(waterModel);
         }
 
+        public static IWaterSnroAltCalcsSelSetSummary SnroAltCalcsSelSetSummary(this IWaterModel waterModel)
+        {
+            return new WaterSnroAltCalcsSelSetSummary(waterModel);
+        }
+
         public static FileInfo ModelFileInfo(this IModelInfo modelInfo)
         {
             return new FileInfo(modelInfo.Filename);
         }
+    }
+    #endregion
+
+    #region Scenario Alternative Calc. Options and Selection Set Summary
+    public interface IWaterSnroAltCalcsSelSetSummary
+    {
+        void AddModel(IWaterModel waterModel);
+    }
+    public class WaterSnroAltCalcsSelSetSummary : IWaterSnroAltCalcsSelSetSummary
+    {
+        #region Constructor
+        public WaterSnroAltCalcsSelSetSummary(IWaterModel waterModel)
+        {
+            WaterModel = waterModel;
+            Initialize();
+        }
+        #endregion
+
+        #region Public Methods
+        public void AddModel(IWaterModel waterModel)
+        {
+            var valueColumn = new DataColumn($"{waterModel.ModelInfo.ModelFileInfo().Name}", typeof(string));
+            if (DataTable.Columns.Contains(valueColumn.ColumnName))
+                return;
+
+            DataTable.Columns.Add(valueColumn);
+
+            // Selection Set
+            SelectionSetDataRow[valueColumn] = waterModel.SelectionSets.Count;
+
+            // Scenario
+            ScenarioDataRow[valueColumn] = waterModel.Scenarios.Count;
+
+            // Calc Options
+            CalcOptionsEpaNetDataRow[valueColumn] = waterModel.CalculationOptions(WaterEngineType.Epanet).Count;
+            CalcOptionsHammerDataRow[valueColumn] = waterModel.CalculationOptions(WaterEngineType.Hammer).Count;
+
+
+            // Alternative Types
+            var alternativeTypes = Enum.GetValues(typeof(WaterAlternativeTypeEnum))
+                .Cast<WaterAlternativeTypeEnum>()
+                .ToArray()
+                .OrderBy(e => e.ToString()).ToArray();
+
+            var alternativesMap = waterModel.AlternativeTypes().All;
+            for (int i = 0; i < alternativeTypes.Length; i++)
+            {
+                var alternativeType = alternativeTypes[i];
+                AlternativeTypesRowMap[alternativeType.ToString()][valueColumn] = alternativesMap[alternativeType].Count;
+            }
+        }
+        #endregion
+
+        #region Override Methods
+        public override string ToString()
+        {
+            return DataTable.ToPrettyPrintedString();
+        }
+        #endregion
+
+        #region Private Methods
+        private void Initialize()
+        {
+            var titleColumn = new DataColumn("Name", typeof(string));
+            DataTable.Columns.Add(titleColumn);
+
+            // Selection Set
+            SelectionSetDataRow = DataTable.NewRow();
+            DataTable.Rows.Add(SelectionSetDataRow);
+            SelectionSetDataRow[titleColumn] = "Selection Set";
+
+            // Scenario
+            ScenarioDataRow = DataTable.NewRow();
+            DataTable.Rows.Add(ScenarioDataRow);
+            ScenarioDataRow[titleColumn] = "Scenario";
+
+            // Calc Options
+            CalcOptionsEpaNetDataRow = DataTable.NewRow();
+            DataTable.Rows.Add(CalcOptionsEpaNetDataRow);
+            CalcOptionsEpaNetDataRow[titleColumn] = "Calc Options EpaNet";
+            CalcOptionsHammerDataRow = DataTable.NewRow();
+            DataTable.Rows.Add(CalcOptionsHammerDataRow);
+            CalcOptionsHammerDataRow[titleColumn] = "Calc Options Hammer";
+
+            // Separator
+            var separatorRow = DataTable.NewRow();
+            DataTable.Rows.Add(separatorRow);
+            separatorRow[titleColumn] = "-------------------";
+
+            // Alternative Types
+            AlternativeTypesRow = DataTable.NewRow();
+            DataTable.Rows.Add(AlternativeTypesRow);
+            AlternativeTypesRow[titleColumn] = "Alternative Types";
+
+            // Add each Support Element type
+            var alternativeTypes = Enum.GetValues(typeof(WaterAlternativeTypeEnum))
+                .Cast<WaterAlternativeTypeEnum>()
+                .ToArray()
+                .OrderBy(e => e.ToString()).ToArray();
+
+
+            for (int i = 0; i < alternativeTypes.Length; i++)
+            {
+                var alternativeType = alternativeTypes[i];
+
+                var dataRow = DataTable.NewRow();
+                DataTable.Rows.Add(dataRow);
+                AlternativeTypesRowMap.Add(alternativeType.ToString(), dataRow);
+
+                dataRow[titleColumn] = $"   {alternativeType}";
+            }
+
+        }
+        #endregion
+
+
+        #region Private Properties
+        private IWaterModel WaterModel { get; }
+        private DataTable DataTable { get; } = new DataTable("Scnro / Alt / Calcs / SelSet Summary");
+        private Dictionary<string, DataRow> AlternativeTypesRowMap { get; set; } = new Dictionary<string, DataRow>();
+
+        private DataRow ScenarioDataRow { get; set; }
+        private DataRow AlternativeTypesRow { get; set; }
+        private DataRow CalcOptionsEpaNetDataRow { get; set; }
+        private DataRow CalcOptionsHammerDataRow { get; set; }
+        private DataRow SelectionSetDataRow { get; set; }
+        #endregion
+
     }
     #endregion
 
@@ -63,6 +206,10 @@ namespace OFW.ModelMerger.Extentions
         public void AddModel(IWaterModel waterModel)
         {
             var valueColumn = new DataColumn($"{waterModel.ModelInfo.ModelFileInfo().Name}", typeof(string));
+
+            if (DataTable.Columns.Contains(valueColumn.ColumnName))
+                return;
+
             DataTable.Columns.Add(valueColumn);
 
 
@@ -96,8 +243,10 @@ namespace OFW.ModelMerger.Extentions
         #region Private Methods
         private void Initialize()
         {
-            var titleColumn = new DataColumn("Component Type", typeof(string));
+            var titleColumn = new DataColumn("Model Components Type", typeof(string));
             DataTable.Columns.Add(titleColumn);
+
+
 
             // Add each Support Element type
             var elementTypes = Enum.GetValues(typeof(IdahoSupportElementTypes))
@@ -126,65 +275,13 @@ namespace OFW.ModelMerger.Extentions
 
         #region Private Properties
         private IWaterModel WaterModel { get; }
-        private DataTable DataTable { get; } = new DataTable("Model Components Summary");
+        private DataTable DataTable { get; } = new DataTable("Components Summary");
         private Dictionary<string, DataRow> DataRowMap { get; set; } = new Dictionary<string, DataRow>();
 
         #endregion
 
     }
 
-    #endregion
-
-    #region Water Model Summary
-    public interface IWaterModelSummary
-    {
-    }
-    internal class WaterModelSummary : IWaterModelSummary
-    {
-        #region Constructor
-        public WaterModelSummary(IWaterModel waterModel)
-        {
-            WaterModel = waterModel;
-        }
-        #endregion
-
-        #region Public Methods
-
-        public string ToString(
-            bool includeDiameterSummary = true,
-            bool includeComponentsSummary = true,
-            bool includeScenarioAltCalcsSummary = true)
-        {
-            var retVal = WaterModel.Network.ElementsCountSummary(WaterModel).ToString();
-
-            if (includeDiameterSummary)
-                retVal += WaterModel.Network.PipeDiameterSummary(WaterModel).ToString();
-
-            if (includeComponentsSummary)
-                retVal += "";
-
-            if (includeScenarioAltCalcsSummary)
-                retVal += "";
-
-            return retVal;
-        }
-        #endregion
-
-        #region Overrides
-        public override string ToString()
-        {
-            return base.ToString();
-        }
-        #endregion
-
-        #region Public Properties
-        #endregion
-
-        #region Private Properties
-        private IWaterModel WaterModel { get; }
-        #endregion
-
-    }
     #endregion
 
     #region Water Network Pipe Diameter Summary
@@ -201,7 +298,7 @@ namespace OFW.ModelMerger.Extentions
         #region Constructor
         public PipeDiameterSummary(IWaterNetwork waterNetwork, IWaterModel waterModel)
         {
-            DataTable = new DataTable($"{waterModel.ModelInfo.ModelFileInfo().Name} | Pipe Diameter Summary Table");
+            DataTable = new DataTable($"{waterModel.ModelInfo.ModelFileInfo().Name}: Pipe Diameter Summary Table");
             WaterNetwork = waterNetwork;
             WaterModel = waterModel;
             Build();
@@ -240,7 +337,7 @@ namespace OFW.ModelMerger.Extentions
                     DiameterToPipeLengthMap.Add(diameter, pipe.Input.Length);
             }
 
-            foreach (var diameter in DistinctDiameters)
+            foreach (var diameter in DistinctDiameters.OrderBy(d => d))
             {
                 var dataRow = DataTable.NewRow();
                 DataTable.Rows.Add(dataRow);
@@ -274,12 +371,11 @@ namespace OFW.ModelMerger.Extentions
     }
     #endregion
 
-
     #region Water Network Element Summary
     public interface IWaterNetworkElementsSummary
     {
         Dictionary<WaterNetworkElementType, int> ElementsCountMap { get; }
-        IWaterPipeSummary PipeSummary { get; }
+        IWaterNetworkPipeDiameterSummary PipeDiameterSummary { get; }
 
         void AddNetwork(IWaterModel waterModel);
 
@@ -299,6 +395,10 @@ namespace OFW.ModelMerger.Extentions
         public void AddNetwork(IWaterModel waterModel)
         {
             var valueColumn = new DataColumn($"{waterModel.ModelInfo.ModelFileInfo().Name}", typeof(string));
+
+            if (DataTable.Columns.Contains(valueColumn.ColumnName))
+                return;
+
             DataTable.Columns.Add(valueColumn);
 
             // Add each network type
@@ -390,8 +490,7 @@ namespace OFW.ModelMerger.Extentions
 
         #region Public Properties
         public Dictionary<WaterNetworkElementType, int> ElementsCountMap { get; } = new Dictionary<WaterNetworkElementType, int>();
-        public IWaterPipeSummary PipeSummary => pipeSummary
-            ?? (pipeSummary = new WaterPipeSummary(WaterModel.Network));
+        public IWaterNetworkPipeDiameterSummary PipeDiameterSummary => WaterModel.Network.PipeDiameterSummary(WaterModel);
         #endregion
 
         #region Private Properties
@@ -401,7 +500,6 @@ namespace OFW.ModelMerger.Extentions
         #endregion
 
         #region Private Fields
-        IWaterPipeSummary pipeSummary;
         string PipeLength = "Pipe length";
         string LateralLength = "Lateral length";
         #endregion
@@ -411,90 +509,88 @@ namespace OFW.ModelMerger.Extentions
 
     #endregion
 
-    internal class WaterPipeSummary : IWaterPipeSummary
+    #region Water Model Summary
+    public interface IWaterModelSummary
+    {
+        IWaterNetworkElementsSummary ElementsCountSummary { get; }
+        IWaterComponentsCountSummary ComponentsCountSummary { get; }
+        IWaterSnroAltCalcsSelSetSummary SnroAltCalcsSelSetSummary { get; }
+
+        string ToString(
+            bool includeDiameterSummary = true,
+            bool includeComponentsSummary = true,
+            bool includeScenarioAltCalcsSummary = true);
+
+    }
+    internal class WaterModelSummary : IWaterModelSummary
     {
         #region Constructor
-        public WaterPipeSummary(IWaterNetwork waterNetwork)
+        public WaterModelSummary(IWaterModel waterModel)
         {
-            WaterNetwork = waterNetwork;
-            isSummarized = false;
+            WaterModel = waterModel;
 
-            DistinctDiameters = new List<double>();
-            DiameterToPipeCountMap = new Dictionary<double, double>();
-            DiameterToPipeLengthMap = new Dictionary<double, double>();
+            ElementsCountSummary = WaterModel.Network.ElementsCountSummary(WaterModel);
+            ElementsCountSummary.AddNetwork(WaterModel);
+
+            PipeDiameterSummary = WaterModel.Network.PipeDiameterSummary(WaterModel);
+
+            ComponentsCountSummary = WaterModel.ComponentsCountSummary();
+            ComponentsCountSummary.AddModel(WaterModel);
+
+            SnroAltCalcsSelSetSummary = WaterModel.SnroAltCalcsSelSetSummary();
+            SnroAltCalcsSelSetSummary.AddModel(WaterModel);
+        }
+        #endregion
+
+        #region Public Methods
+
+        public string ToString(
+            bool includeDiameterSummary = true,
+            bool includeComponentsSummary = true,
+            bool includeScenarioAltCalcsSummary = true)
+        {
+            var retVal = ElementsCountSummary.ToString();
+
+            if (includeDiameterSummary)
+                retVal += PipeDiameterSummary.ToString();
+
+            if (includeComponentsSummary)
+                retVal += ComponentsCountSummary.ToString();
+
+            if (includeScenarioAltCalcsSummary)
+                retVal += SnroAltCalcsSelSetSummary.ToString();
+
+            return retVal;
+        }
+        #endregion
+
+        #region Overrides
+        public override string ToString()
+        {
+            return this.ToString(true, true, true);
         }
         #endregion
 
         #region Public Properties
-        public IList<double> DistinctDiameters
-        {
-            get
-            {
-                if (!isSummarized) Summarize();
-                return DistinctDiameters;
-            }
-            private set { DistinctDiameters = value; }
-        }
-        public IDictionary<double, double> DiameterToPipeCountMap
-        {
-            get
-            {
-                if (!isSummarized) Summarize();
-                return DiameterToPipeCountMap;
-            }
-            private set { DiameterToPipeCountMap = value; }
-        }
-        public IDictionary<double, double> DiameterToPipeLengthMap
-        {
-            get
-            {
-                if (!isSummarized) Summarize();
-                return DiameterToPipeLengthMap;
-            }
-            private set { DiameterToPipeLengthMap = value; }
-        }
-        #endregion
-
-        #region Private Methods
-        private void Summarize()
-        {
-
-            foreach (var pipe in WaterNetwork.Pipes.Elements())
-            {
-                var diameter = pipe.Input.Diameter;
-                if (!DistinctDiameters.Contains(diameter)) DistinctDiameters.Add(diameter);
-
-                // Pipe Count
-                if (DiameterToPipeCountMap.ContainsKey(diameter))
-                    DiameterToPipeCountMap[diameter] += 1;
-                else
-                    DiameterToPipeCountMap.Add(diameter, 1);
-
-                // Length Sum
-                if (DiameterToPipeLengthMap.ContainsKey(diameter))
-                    DiameterToPipeLengthMap[diameter] += pipe.Input.Length;
-                else
-                    DiameterToPipeLengthMap.Add(diameter, pipe.Input.Length);
-            }
-
-            isSummarized = true;
-        }
+        public IWaterNetworkElementsSummary ElementsCountSummary { get; private set; }
+        public IWaterNetworkPipeDiameterSummary PipeDiameterSummary { get; private set; }
+        public IWaterComponentsCountSummary ComponentsCountSummary { get; private set; }
+        public IWaterSnroAltCalcsSelSetSummary SnroAltCalcsSelSetSummary { get; private set; }
         #endregion
 
         #region Private Properties
-        private IWaterNetwork WaterNetwork { get; }
+        private IWaterModel WaterModel { get; }
         #endregion
 
         #region Private Fields
-        bool isSummarized;
+        //private IWaterNetworkElementsSummary elementsCountSummary;
+        //private IWaterNetworkPipeDiameterSummary pipeDiameterSummary;
+        //private IWaterComponentsCountSummary componentsCountSummary;
+        //private IWaterSnroAltCalcsSelSetSummary nroAltCalcsSelSetSummary;
+
         #endregion
-    }
 
-
-    public interface IWaterPipeSummary
-    {
-        IList<double> DistinctDiameters { get; }
-        IDictionary<double, double> DiameterToPipeCountMap { get; }
-        IDictionary<double, double> DiameterToPipeLengthMap { get; }
     }
+    #endregion
+
 }

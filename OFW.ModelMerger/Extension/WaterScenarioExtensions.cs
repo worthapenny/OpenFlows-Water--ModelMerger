@@ -1,4 +1,12 @@
-﻿using System;
+﻿/**
+ * @ Author: Akshaya Niraula
+ * @ Create Time: 2021-10-22 19:19:33
+ * @ Modified by: Akshaya Niraula
+ * @ Modified time: 2021-10-26 17:33:18
+ * @ Copyright: Copyright (c) 2021 Akshaya Niraula See LICENSE for details
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,17 +25,17 @@ namespace OFW.ModelMerger.Extentions
         public static IList<int> GetActiveScenarioIdsPath(this IWaterScenario waterScenario, IWaterModel waterModel)
         {
             var ids = new List<int>();
-            GetChilderenScenarioIdChain(waterScenario, ids);
+            GetChildrenScenarioIdChain(waterScenario, ids);
 
             return ids;
         }
-        private static void GetChilderenScenarioIdChain(IWaterScenario waterScenario,  IList<int> ids)
+        private static void GetChildrenScenarioIdChain(IWaterScenario waterScenario,  IList<int> ids)
         {
             ids.Add(waterScenario.Id);
             waterScenario
                 .Manager
                 .ChildrenOfElement(waterScenario.Id)
-                .ForEach(s => GetChilderenScenarioIdChain(s,  ids));
+                .ForEach(s => GetChildrenScenarioIdChain(s,  ids));
 
         }
     }

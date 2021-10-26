@@ -1,4 +1,12 @@
-﻿using System.Collections.Generic;
+﻿/**
+ * @ Author: Akshaya Niraula
+ * @ Create Time: 2021-10-23 01:12:49
+ * @ Modified by: Akshaya Niraula
+ * @ Modified time: 2021-10-26 17:33:34
+ * @ Copyright: Copyright (c) 2021 Akshaya Niraula See LICENSE for details
+ */
+
+using System.Collections.Generic;
 using System.Linq;
 using Haestad.Support.User;
 using OFW.ModelMerger.Extentions;
@@ -85,10 +93,10 @@ namespace OFW.ModelMerger.Support
             foreach (var item in allAlternatviesMap)
             {
                 var alternativeType = item.Key;
-                var alterntives = item.Value;
+                var alternatives = item.Value;
 
-                if (alterntives.Count > 1)
-                    foreach (var alternative in alterntives)
+                if (alternatives.Count > 1)
+                    foreach (var alternative in alternatives)
                         alternative.MergeAllParents();
             }
         }
