@@ -22,7 +22,7 @@ using static OFW.ModelMerger.Extentions.CalcOptionsExtensions;
 namespace OFW.ModelMerger.Test
 {
     [TestFixture]
-    public class WaterModelTests : OpenFlowsWaterTestFixtureBase
+    public class WaterModelTests : OFWTestFixtureBase
     {
         #region Constructor
         public WaterModelTests()
@@ -33,7 +33,7 @@ namespace OFW.ModelMerger.Test
         #region Setup / Teardown
         protected override void SetupImpl()
         {
-            string filename = Path.GetFullPath(BuildTestFilename($@"Example10.wtg"));
+            string filename = Path.GetFullPath(BuildTestFilename($@"Example5.wtg"));
             OpenModel(filename);
 
             TempDir = Path.Combine(Path.GetTempPath(), "__ModelMerger");
@@ -41,7 +41,7 @@ namespace OFW.ModelMerger.Test
 
             Options = new LabelModificationOptions();
             Options.ShortName = "Ex10";
-            Options.ScenarioId = WaterModel.ActiveScenario.Id;
+            //Options.Scenario = WaterModel.ActiveScenario;
 
         }
         protected override void TeardownImpl()
@@ -58,11 +58,11 @@ namespace OFW.ModelMerger.Test
         {
             // Simplification Tests
             var simplifier = new SimplifyScenarioAltCalcs();
-            simplifier.Simplify(WaterModel, new NullProgressIndicator());
+            simplifier.Simplify(WaterModel, new LabelModificationOptions(), new NullProgressIndicator());
 
             // scenario
             Assert.AreEqual(WaterModel.Scenarios.Count, 1);
-
+            WaterModel.Units.FormatValue(1.2, WaterModel.Units.NetworkUnits.Pipe.LengthUnit);
             // alternatives
             var altDict = WaterModel.AlternativeTypes().All;
             foreach (var altItem in altDict)
@@ -75,7 +75,7 @@ namespace OFW.ModelMerger.Test
             Assert.AreEqual(WaterModel.CalculationOptions(WaterEngineType.Hammer).Count, 1);
 
 
-            // Modifition Test
+            // Modification Test
             var modifier = new ModifyLabels(WaterModel);
             modifier.Modify(Options, new NullProgressIndicator());
 
@@ -113,7 +113,7 @@ namespace OFW.ModelMerger.Test
             var elementsCountSummary = WaterModel.Network.ElementsCountSummary(WaterModel);
             Assert.IsNotNull(elementsCountSummary);
 
-            elementsCountSummary.AddNetwork(WaterModel);
+            elementsCountSummary.AddModel(WaterModel);
             var networkTable = elementsCountSummary.ToString();
             Assert.AreEqual(networkTable.Count(s => s == '\n'), 40);
             Assert.AreEqual(elementsCountSummary.ElementsCountMap.Count, Enum.GetValues(typeof(WaterNetworkElementType)).Length);
@@ -139,7 +139,7 @@ namespace OFW.ModelMerger.Test
             var anotherModelPath = base.BuildTestFilename("Example5.wtg");
             using(var waterModel = OpenFlowsWater.Open(anotherModelPath))
             {
-                elementsCountSummary.AddNetwork(waterModel);
+                elementsCountSummary.AddModel(waterModel);
                 componentsCountSummary.AddModel(waterModel);
                 sacss.AddModel(waterModel);
             }
@@ -178,6 +178,30 @@ namespace OFW.ModelMerger.Test
             Console.WriteLine();
             Console.WriteLine("All Tables at once");
             Console.WriteLine(modelSummaryTable);
+        }
+
+        [Test]
+        public void SummaryManagerTest()
+        {
+            SummaryManager.Instance.AddBaseModel(WaterModel);
+            //SummaryManager.Instance.AddModelSummary("BASE MODEL", WaterModel);
+
+            var secondarryModelPath = base.BuildTestFilename("Example4.wtg");
+            var model1 = OpenFlowsWater.Open(secondarryModelPath);
+            SummaryManager.Instance.AddModel(model1);
+
+            var anotherModelPath = base.BuildTestFilename("Example6.wtg");
+            var model2 = OpenFlowsWater.Open(anotherModelPath);
+            SummaryManager.Instance.AddModel(model2);
+
+            var summary = SummaryManager.Instance.ToString();
+            Assert.NotNull(summary);
+            Assert.AreEqual(summary.Length, 9016);
+
+            Console.WriteLine(summary);
+
+            model1.Close();
+            model2.Close();
         }
         #endregion
 

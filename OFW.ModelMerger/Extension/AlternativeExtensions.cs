@@ -9,6 +9,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Haestad.Domain;
 using Haestad.Support.Support;
 using OpenFlows.Domain.ModelingElements;
@@ -20,6 +21,8 @@ namespace OFW.ModelMerger.Extentions
     public static class AlternativeExtensions
     {
         #region Alternative Types
+        
+
         public static IWaterAlternativeTypes AlternativeTypes(this IWaterModel waterModel)
         {
             return new WaterAlternativeType(waterModel);
@@ -27,8 +30,13 @@ namespace OFW.ModelMerger.Extentions
         public interface IWaterAlternativeTypes
         {
             IWaterAlternative ActiveAlternative(WaterAlternativeTypeEnum alternativeType);
+            IWaterAlternative Create(string label, WaterAlternativeTypeEnum alternativeTypeEnum, int? parentID);
+
+
             Dictionary<WaterAlternativeTypeEnum, List<IWaterAlternative>> All { get; }
+            Dictionary<WaterAlternativeTypeEnum, List<IWaterAlternative>> BaseAlternativesMap { get; }
             Dictionary<WaterAlternativeTypeEnum, IWaterAlternative> ActiveAlternatives { get; }
+
         }
 
         private class WaterAlternativeType : IWaterAlternativeTypes
@@ -42,6 +50,19 @@ namespace OFW.ModelMerger.Extentions
             #endregion
 
             #region Public Methods
+            public IWaterAlternative Create(string label, WaterAlternativeTypeEnum alternativeTypeEnum, int? parentID)
+            {
+                var manager = WaterModel.DomainDataSet.AlternativeManager((int)alternativeTypeEnum);
+                var id = manager.Add();
+                var alternative = manager.Element(id) as IAlternative;                
+                alternative.Label = label;
+
+                if (parentID != null)
+                    alternative.ParentID = parentID.Value;
+
+                return new WaterAlternative(alternative, WaterModel);
+            }
+
             public IWaterAlternative ActiveAlternative(WaterAlternativeTypeEnum alternativeType)
             {
                 IScenario scenario = WaterModel
@@ -60,6 +81,27 @@ namespace OFW.ModelMerger.Extentions
             #endregion
 
             #region Public Properties
+            public Dictionary<WaterAlternativeTypeEnum, List<IWaterAlternative>> BaseAlternativesMap
+            {
+                get
+                {
+                    var map = new Dictionary<WaterAlternativeTypeEnum, List<IWaterAlternative>>();
+                    foreach (var item in Enum.GetValues(typeof(WaterAlternativeTypeEnum)).Cast<WaterAlternativeTypeEnum>())
+                    {
+                        var baseElements = WaterModel
+                            .DomainDataSet
+                            .AlternativeManager((int)item)
+                            .BaseElements()
+                            .OfType<IAlternative>()
+                            .Select(a=> (new WaterAlternative(a, WaterModel) as IWaterAlternative))
+                            .ToList();
+
+                        map.Add(item, baseElements);
+                    }
+
+                    return map;
+                }
+            }
             public Dictionary<WaterAlternativeTypeEnum, List<IWaterAlternative>> All
             {
                 get
@@ -99,6 +141,9 @@ namespace OFW.ModelMerger.Extentions
             private IWaterModel WaterModel { get; }
             #endregion
         }
+        
+        
+
         #region Enums
         public enum WaterAlternativeTypeEnum
         {
@@ -159,6 +204,7 @@ namespace OFW.ModelMerger.Extentions
             void Delete();
             void MergeAllParents();
             void AssignToActiveScenario(WaterAlternativeTypeEnum alternativeType, int alternativeId);
+            //void AssignToNoScenario(WaterAlternativeTypeEnum alternativeType, IWaterAlternative alternative);
         }
 
         [DebuggerDisplay("Alternative: {Id}: {Label} [{AlternativeType}]")]
@@ -208,12 +254,11 @@ namespace OFW.ModelMerger.Extentions
                     // if current alternative is active, make the parent alternative active
                     // as you can not start the merge from the active alternative
                     if (IsActive())
-                        AssignToActiveScenario(AlternativeType, ParentId);
+                        AssignToActiveScenario(AlternativeType, ParentId);                                        
 
                     (WoAlternative.Manager as IAlternativeManager).Merge(Id);
-
-                    var parentAlternative = WaterModel.DomainDataSet.AlternativeManager((int)AlternativeType).Element(ParentId) as IAlternative;
-                    parentAlternativeId = parentAlternative.ParentID;
+                    WoAlternative = WaterModel.DomainDataSet.AlternativeManager(WoAlternativeType.Id).Element(parentAlternativeId) as IAlternative;
+                    parentAlternativeId = WoAlternative.ParentID;
                 }
             }
             public void AssignToActiveScenario(WaterAlternativeTypeEnum alternativeType, int alternativeId)
@@ -224,6 +269,11 @@ namespace OFW.ModelMerger.Extentions
                     .AlternativeID((int)alternativeType, alternativeId);
 
             }
+            //public void AssignToNoScenario(WaterAlternativeTypeEnum alternativeType, IWaterAlternative alternative)
+            //{
+            //    var baseAlternatves = WaterModel.AlternativeTypes(alternativeType);
+            //    (alternative.WoAlternative.Manager as IAlternativeManager).
+            //}
             #endregion
 
             #region Private Properties
@@ -237,6 +287,7 @@ namespace OFW.ModelMerger.Extentions
 
             }
 
+            
             private IWaterModel WaterModel { get; }
             #endregion
 
@@ -248,7 +299,7 @@ namespace OFW.ModelMerger.Extentions
             public WaterAlternativeTypeEnum AlternativeType => (WaterAlternativeTypeEnum)WoAlternative.AlternativeTypeID;
             public ModelElementType ModelElementType => ModelElementType.All; // not sure how to set to specific type 
             public IAlternativeType WoAlternativeType => WoAlternative.AlternativeType();
-            public IAlternative WoAlternative { get; }
+            public IAlternative WoAlternative { get; private set; }
             #endregion
 
         }

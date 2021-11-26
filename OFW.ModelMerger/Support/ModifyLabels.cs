@@ -6,7 +6,6 @@
  * @ Copyright: Copyright (c) 2021 Akshaya Niraula See LICENSE for details
  */
 
-using System.IO;
 using Haestad.Support.User;
 using OFW.ModelMerger.Domain;
 using OFW.ModelMerger.Extentions;
@@ -209,70 +208,6 @@ namespace OFW.ModelMerger.Support
 
             return string.Empty;
         }
-
-
-        //private void ReplaceScenariosLabel(LabelModificationOptions options, IProgressIndicator pi)
-        //{
-        //    var scenarios = WaterModel.Scenarios.Elements();
-        //    pi.IncrementTask();
-        //    pi.BeginTask(scenarios.Count);
-
-        //    if (pi.IsAborted)
-        //        return;
-
-        //    scenarios.ForEach(s =>
-        //    {
-        //        if (WaterModel.ActiveScenario.Id == s.Id)
-        //        {
-        //            s.Label = options.NewLabelScenarioAltCalcs;
-        //        }
-        //        pi.IncrementStep();
-        //    });
-
-        //    pi.EndTask();
-        //}
-        //private void ReplaceAlternativesLabel(LabelModificationOptions options, IProgressIndicator pi)
-        //{
-        //    pi.IncrementTask();
-        //    pi.BeginTask(1);
-
-
-        //    if (pi.IsAborted)
-        //        return;
-        //    var alternatives = WaterModel.Alternatives();
-        //    alternatives.ForEach(a =>
-        //    {
-        //        if (a.IsActive())
-        //            a.Label = options.NewLabelScenarioAltCalcs;
-        //    });
-
-        //    pi.EndTask();
-        //}
-        //private void ReplaceCalculationOptionsLabel(LabelModificationOptions options, IProgressIndicator pi)
-        //{
-        //    pi.IncrementTask();
-        //    pi.BeginTask(1);
-
-        //    if (pi.IsAborted)
-        //        return;
-
-        //    foreach (var numericalEngineType in WaterModel.DomainDataSet.DomainDataSetType().NumericalEngineTypes())
-        //    {
-        //        string processLabel = numericalEngineType.Label.Replace("#", "");
-
-        //        foreach (var calcOptions in WaterModel
-        //            .DomainDataSet
-        //            .ScenarioManager
-        //            .CalculationOptionsManager(numericalEngineType.Name).Elements())
-        //        {
-        //            if (WaterModel.ActiveScenario.Options.Id == calcOptions.Id)
-        //                calcOptions.Label = options.NewLabelScenarioAltCalcs;
-        //        }
-        //    }
-
-        //    pi.IncrementStep();
-        //    pi.EndTask();
-        //}
         #endregion
 
         #region Private Properties

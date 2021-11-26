@@ -6,14 +6,11 @@
  * @ Copyright: Copyright (c) 2021 Akshaya Niraula See LICENSE for details
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Haestad.Domain;
 using OpenFlows.Water.Domain;
 using OpenFlows.Water.Domain.ModelingElements;
+using System.Collections.Generic;
+using static OFW.ModelMerger.Extentions.AlternativeExtensions;
 
 namespace OFW.ModelMerger.Extentions
 {
@@ -38,5 +35,33 @@ namespace OFW.ModelMerger.Extentions
                 .ForEach(s => GetChildrenScenarioIdChain(s,  ids));
 
         }
+
+        public static Dictionary<WaterAlternativeTypeEnum, IWaterAlternative> ActiveAlternativeMap(this IWaterScenario waterScenario, IWaterModel waterModel)
+        {
+            // cache active scenario
+            var activeScenario = waterModel.ActiveScenario;
+
+            // make given scenario active
+            waterModel.SetActiveScenario(waterScenario);
+
+            var retVal= waterModel.AlternativeTypes().ActiveAlternatives;
+
+            // restore active scenario to original
+            waterModel.SetActiveScenario(activeScenario); ;
+
+            return retVal;
+        }
+
+        public static void AssignAlternatives(this IWaterScenario waterScenario, 
+            Dictionary<WaterAlternativeTypeEnum, 
+            IWaterAlternative> map, 
+            IWaterModel waterModel)
+        {
+            foreach (var kvp in map)
+            {
+                waterScenario.WoScenario(waterModel).AlternativeID((int)kvp.Key, kvp.Value.Id);                
+            }
+        }
+
     }
 }

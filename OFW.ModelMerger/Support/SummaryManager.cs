@@ -25,55 +25,46 @@ namespace OFW.ModelMerger.Support
         {
             StringBuilder.AppendLine();
             StringBuilder.AppendLine(Stars);
+            StringBuilder.AppendLine("* Model Merger Summary Report ");
+            StringBuilder.AppendLine(Stars);
             StringBuilder.AppendLine();
         }
         #endregion
 
         #region Public Methods
-        public void AddBaseModel(IWaterModel waterModel)
+        public void AddBaseModel(IWaterModel waterModel, string label = "")
         {
-            ElementsCountSummary = waterModel.Network.ElementsCountSummary(waterModel);
-            ComponentsCountSummary = waterModel.ComponentsCountSummary();
-
-            AddModelSummary("Base/Primary Model Summary", waterModel);
-        } 
-        public void AddModelSummary(string title, IWaterModel waterModel)
-        {
-            ElementsCountSummary.AddNetwork(waterModel);
-            ComponentsCountSummary.AddModel(waterModel);
-
-            StringBuilder.AppendLine(title);
-            StringBuilder.AppendLine(waterModel.Network.ElementsCountSummary(waterModel).ToString());
-            StringBuilder.AppendLine();
-            StringBuilder.AppendLine(waterModel.Network.PipeDiameterSummary(waterModel).ToString());
-            StringBuilder.AppendLine();
-            StringBuilder.AppendLine(waterModel.ComponentsCountSummary().ToString());
-
-            AddSeparator();
-            StringBuilder.AppendLine();
+            ModelSummary = waterModel.ModelSummary(label);
         }
-        public string GetNetworkCountTable() => ElementsCountSummary.ToString();
-        public string GetComponentsSummaryTable() => ComponentsCountSummary.ToString();
-
-        public void Add(string message) => StringBuilder.AppendLine(message);
-        public void AddSeparator() => StringBuilder.AppendLine(Separator);
+        public void AddModel(IWaterModel waterModel, string label = "")
+        {
+            ModelSummary.AddWaterModel(waterModel, label);
+        }
+        public void AddMessage(string message)
+        {
+            StringBuilder.AppendLine(message);
+        }
         #endregion
 
         #region Overrides
         public override string ToString()
         {
-            return StringBuilder.ToString();
+            if (!built)
+            {
+                StringBuilder.AppendLine(ModelSummary.ToString());
+                built = true;
+            }
+                return StringBuilder.ToString();
         }
         #endregion
 
         #region Private Properties
-        private IWaterNetworkElementsSummary ElementsCountSummary { get; set; }
-        private IWaterComponentsCountSummary ComponentsCountSummary { get; set; }
+        private bool built { get; set; }    = false;
+        public IWaterModelSummary ModelSummary { get; set; }
         private StringBuilder StringBuilder { get; set; } = new StringBuilder();
         #endregion
 
         #region Private Fields
-        private const string Separator = "-----------------------------------------------------------------";
         private const string Stars = "*****************************************************************";
 
         #endregion

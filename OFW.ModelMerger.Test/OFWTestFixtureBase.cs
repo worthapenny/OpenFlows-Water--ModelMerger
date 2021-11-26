@@ -16,10 +16,10 @@ using static OpenFlows.Water.OpenFlowsWater;
 
 namespace OFW.ModelMerger.Test
 {
-    public abstract class OpenFlowsWaterTestFixtureBase
+    public abstract class OFWTestFixtureBase
     {
         #region Constructor
-        public OpenFlowsWaterTestFixtureBase()
+        public OFWTestFixtureBase()
         {
 
         }
@@ -34,6 +34,8 @@ namespace OFW.ModelMerger.Test
 
             Assert.AreEqual(LicenseRunStatusEnum.OK, StartSession(WaterProductLicenseType.WaterGEMS));
             Assert.AreEqual(true, IsValid());
+
+            OpenFlowsWater.SetMaxProjects(5);
 
             SetupImpl();
         }

@@ -9,6 +9,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Haestad.Support.User;
+using OFW.ModelMerger.Domain;
 using OFW.ModelMerger.Extentions;
 using OpenFlows.Water.Domain;
 using OpenFlows.Water.Domain.ModelingElements;
@@ -26,62 +27,32 @@ namespace OFW.ModelMerger.Support
         #region Public Methods
         /// <summary>
         /// Performs multiple simplifications.
-        /// Delete S.A.C except for active ones, Merges Alternatives, and make one one root scenario
+        /// Delete S.A.C except for active ones, Merges Alternatives, and make one root scenario
         /// </summary>
         /// <param name="waterModel"></param>
-        public void Simplify(IWaterModel waterModel, IProgressIndicator pi)
+        public void Simplify(IWaterModel waterModel, LabelModificationOptions options, IProgressIndicator pi)
         {
             pi.AddTask("Removing S.A.C. that are not active...");
             pi.IncrementTask();
             pi.BeginTask(1);
 
-            DeleteScenariosExceptActive(waterModel);
+            var newMergedScenario = waterModel.Scenarios.Create(waterModel.ActiveScenario.Id);
+            waterModel.SetActiveScenario(newMergedScenario);
+            newMergedScenario.Label = options.NewLabelScenarioAltCalcs;
+
+            // make the new scenario as base so that others can be deleted
+            newMergedScenario.ParentScenario = null;
+
+            DeleteScenariosExceptActive(waterModel);          
             DeleteAlternativesExceptActive(waterModel);
             DeleteCalcOptionsExceptActive(waterModel);
             MergeAlternativesToTheRoot(waterModel);
-            DeleteScenariosToTheRoot(waterModel);
+
 
             pi.IncrementStep();
             pi.EndTask();
         }
 
-        /// <summary>
-        /// Delete all scenarios and keep just one active scenario
-        /// </summary>
-        /// <param name="waterModel"></param>
-        private void DeleteScenariosToTheRoot(IWaterModel waterModel)
-        {
-            // get the list of active alternatives
-            var activeAlternatives = waterModel.AlternativeTypes().ActiveAlternatives;
-
-            // create a base scenario 
-            var baseScenario = waterModel.Scenarios.Create().WoScenario(waterModel);
-            baseScenario.Label = waterModel.ActiveScenario.Label;
-
-            // assign the same active alternatives to the base scenario
-            foreach (var item in activeAlternatives)
-            {
-                var alternativeType = item.Key;
-                var activeAlternative = item.Value;
-
-                baseScenario.AlternativeID((int)alternativeType, activeAlternative.Id);
-            }
-
-            // assign the same calc options
-            baseScenario.CalculationOptionsID(WaterEngineType.Epanet, waterModel.ActiveScenario.Options.Id);
-            baseScenario.CalculationOptionsID(WaterEngineType.Hammer, waterModel.CalculationOptions(WaterEngineType.Hammer).First().Id);
-
-            // make the base scenario active
-            waterModel.Scenarios.Element(baseScenario.Id).MakeCurrent();
-
-            // delete all the scenarios except the base
-            foreach (var scenario in waterModel
-                .Scenarios
-                .Elements()
-                .Where(s => s.Id != baseScenario.Id))
-                scenario.Delete();
-
-        }
 
         /// <summary>
         /// Merge All Alternatives to the root Alternative
@@ -90,20 +61,41 @@ namespace OFW.ModelMerger.Support
         public void MergeAlternativesToTheRoot(IWaterModel waterModel)
         {
             var allAlternatviesMap = waterModel.AlternativeTypes().All;
+            var baseAlternativesMap = waterModel.AlternativeTypes().BaseAlternativesMap;
+
+
             foreach (var item in allAlternatviesMap)
             {
                 var alternativeType = item.Key;
                 var alternatives = item.Value;
+                var baseAlternativse = baseAlternativesMap[alternativeType];
 
                 if (alternatives.Count > 1)
-                    foreach (var alternative in alternatives)
-                        alternative.MergeAllParents();
+                {
+                    // assuming the larger id are older child
+                    // which is not always true
+                    var orderedAlternatives = alternatives.OrderBy(a => a.Id).Reverse().ToList();
+
+                    // set the base alternative to the active scenario
+                    // and remove the base alternative from collection so that rest can be merged
+                    foreach (var baseAlternative in baseAlternativse)
+                    {
+                        baseAlternative.AssignToActiveScenario(alternativeType, baseAlternative.Id);
+                        orderedAlternatives = orderedAlternatives.Where(a => a.Id != baseAlternative.Id).ToList();
+
+                        // Now merge alternative to the parent alternative
+                        foreach (var alternative in orderedAlternatives)
+                        {
+                            alternative.MergeAllParents();
+                        }
+                    }                    
+                }
             }
+            
         }
 
         /// <summary>
         /// Delete scenario except for the active one.
-        /// Maintain the tree structure
         /// </summary>
         /// <param name="waterModel"></param>
         public void DeleteScenariosExceptActive(IWaterModel waterModel)
@@ -117,7 +109,7 @@ namespace OFW.ModelMerger.Support
                     deleteScenarios.Add(s);
             });
 
-            deleteScenarios.ForEach(s => s?.Delete());
+            deleteScenarios.ForEach(s => s?.Delete());   
         }
 
         /// <summary>
@@ -168,10 +160,6 @@ namespace OFW.ModelMerger.Support
 
             deleteCalcOptions.ForEach(c => c.Delete());
         }
-        #endregion
-
-        #region Private Properties
-        //private IWaterModel WaterModel { get; }
         #endregion
 
     }

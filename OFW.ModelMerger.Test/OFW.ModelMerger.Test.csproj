@@ -1,50 +1,81 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+	<PropertyGroup>
+		<TargetFramework>net48</TargetFramework>
 
-    <IsPackable>false</IsPackable>
+		<IsPackable>false</IsPackable>
 
-    <Platforms>AnyCPU;x64</Platforms>
-  </PropertyGroup>
+		<Platforms>AnyCPU;x64</Platforms>
+		<ReferencePath>C:\Program Files (x86)\Bentley\WaterCAD\x64</ReferencePath>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
-    <PackageReference Include="NUnit" Version="3.13.2" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
-    <PackageReference Include="coverlet.collector" Version="3.1.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+		<PackageReference Include="NUnit" Version="3.13.2" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.0.0" />
+		<PackageReference Include="coverlet.collector" Version="3.1.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\OFW.ModelMerger\OFW.ModelMerger.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\OFW.ModelMerger\OFW.ModelMerger.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Haestad.Domain">
-      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.Domain.dll</HintPath>
-    </Reference>
-    <Reference Include="Haestad.Domain.ModelingObjects.Water">
-      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.Domain.ModelingObjects.Water.dll</HintPath>
-    </Reference>
-    <Reference Include="Haestad.Framework">
-      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Haestad.LicensingFacade">
-      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.LicensingFacade.dll</HintPath>
-    </Reference>
-    <Reference Include="Haestad.Support">
-      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\Haestad.Support.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenFlows">
-      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\OpenFlows.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenFlows.Water">
-      <HintPath>C:\Program Files (x86)\Bentley\WaterGEMS\x64\OpenFlows.Water.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+	<ItemGroup>
+		<Reference Include="Haestad.Domain">
+			<HintPath>C:\Program Files (x86)\Bentley\WaterCAD\x64\Haestad.Domain.dll</HintPath>
+			<CopyLocal>False</CopyLocal>
+			<SpecificVersion>False</SpecificVersion>
+		</Reference>
+		<Reference Include="Haestad.Domain.ModelingObjects.Water">
+			<HintPath>C:\Program Files (x86)\Bentley\WaterCAD\x64\Haestad.Domain.ModelingObjects.Water.dll</HintPath>
+			<CopyLocal>False</CopyLocal>
+			<SpecificVersion>False</SpecificVersion>
+		</Reference>
+		<Reference Include="Haestad.Framework">
+			<HintPath>C:\Program Files (x86)\Bentley\WaterCAD\x64\Haestad.Framework.dll</HintPath>
+			<CopyLocal>False</CopyLocal>
+			<SpecificVersion>False</SpecificVersion>
+		</Reference>
+		<Reference Include="Haestad.Framework.Windows.Forms">
+			<HintPath>C:\Program Files (x86)\Bentley\WaterCAD\x64\Haestad.Framework.Windows.Forms.dll</HintPath>
+			<CopyLocal>False</CopyLocal>
+			<SpecificVersion>False</SpecificVersion>
+		</Reference>
+		<Reference Include="Haestad.LicensingFacade">
+			<HintPath>C:\Program Files (x86)\Bentley\WaterCAD\x64\Haestad.LicensingFacade.dll</HintPath>
+			<CopyLocal>False</CopyLocal>
+			<SpecificVersion>False</SpecificVersion>
+		</Reference>
+		<Reference Include="Haestad.Support">
+			<HintPath>C:\Program Files (x86)\Bentley\WaterCAD\x64\Haestad.Support.dll</HintPath>
+			<CopyLocal>False</CopyLocal>
+			<SpecificVersion>False</SpecificVersion>
+		</Reference>
+		<Reference Include="Haestad.WaterProduct">
+			<HintPath>C:\Program Files (x86)\Bentley\WaterCAD\x64\Haestad.WaterProduct.dll</HintPath>
+			<CopyLocal>False</CopyLocal>
+			<SpecificVersion>False</SpecificVersion>
+		</Reference>
+		<Reference Include="OpenFlows">
+			<HintPath>C:\Program Files (x86)\Bentley\WaterCAD\x64\OpenFlows.dll</HintPath>
+			<CopyLocal>False</CopyLocal>
+			<SpecificVersion>False</SpecificVersion>
+		</Reference>
+		<Reference Include="OpenFlows.Water">
+			<HintPath>C:\Program Files (x86)\Bentley\WaterCAD\x64\OpenFlows.Water.dll</HintPath>
+			<CopyLocal>False</CopyLocal>
+			<SpecificVersion>False</SpecificVersion>
+		</Reference>
+		<Reference Include="OpenFlows.Water.Application">
+			<HintPath>C:\Program Files (x86)\Bentley\WaterCAD\x64\OpenFlows.Water.Application.dll</HintPath>
+			<CopyLocal>False</CopyLocal>
+			<SpecificVersion>False</SpecificVersion>
+		</Reference>
+		<Reference Include="System.Windows.Forms" />
+	</ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="cd $(ProjectDir)&#xD;&#xA;call _setup.bat &quot;$(TargetDir)&quot;" />
-  </Target>
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="cd $(ProjectDir)&#xD;&#xA;call _setup.bat &quot;$(TargetDir)&quot;" />
+	</Target>
 
 </Project>

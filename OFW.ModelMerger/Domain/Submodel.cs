@@ -6,26 +6,20 @@
  * @ Copyright: Copyright (c) 2021 Akshaya Niraula See LICENSE for details
  */
 
-using Haestad.Framework.Application;
-using Haestad.Support.User;
-using OpenFlows.Water.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenFlows.Application;
-using Haestad.Drawing.Domain;
-using OpenFlows.Water.Application;
-using System.IO;
-using Haestad.Support.Support;
-using OpenFlows.Water;
-using Haestad.Framework.Windows.Forms.Forms;
 using Haestad.Domain;
-using Haestad.Idaho.Importer.Submodels;
 using Haestad.Domain.DataExchange;
-using OFW.ModelMerger.Support;
-using OFW.ModelMerger.Extentions;
+using Haestad.Drawing.Domain;
+using Haestad.Framework.Application;
+using Haestad.Framework.Windows.Forms.Forms;
+using Haestad.Idaho.Importer.Submodels;
+using Haestad.Support.Support;
+using Haestad.Support.User;
+using OpenFlows.Water;
+using OpenFlows.Water.Application;
+using OpenFlows.Water.Domain;
+using Serilog;
+using System.IO;
+using System.Linq;
 
 namespace OFW.ModelMerger.Domain
 {
@@ -39,14 +33,23 @@ namespace OFW.ModelMerger.Domain
         #endregion
 
         #region Public Methods
-        public void Export(string filepath, IProgressIndicator pi)
+        public string Export(IProgressIndicator pi)
         {
+            Log.Information("About to export to a submodel.");
+
             pi.AddTask($"Exporting {WaterParentFormModel.CurrentProject.Label} to a submodel...");
             pi.IncrementTask();
             pi.BeginTask(1);
 
+            var subModelDir = Path.Combine(Path.GetTempPath(), "__ModelMerger");
+            if (!Directory.Exists(subModelDir)) Directory.CreateDirectory(subModelDir);
+
+            var subModelFileName = WaterParentFormModel.CurrentProject.Label.Replace(".wtg", ".suubmodel");
+            string subModelFilePath = Path.Combine(subModelDir, subModelFileName);
+
+
             // Make sure directory is created
-            if (!Directory.Exists(filepath)) Directory.CreateDirectory(filepath);
+            if (!Directory.Exists(subModelFilePath)) Directory.CreateDirectory(subModelFilePath);
 
             // Select all elements in the model
             var elements = WaterModel
@@ -57,23 +60,37 @@ namespace OFW.ModelMerger.Domain
             // Run the Submodel export command
             WaterParentFormModel.ParentFormUIModel.ExecuteCommand(
                 CommandType.SubmodelsExport,
-                new object[] { filepath, elements });
+                new object[] { subModelFilePath, elements });
 
-            // Generate the summary
-            using (var waterModel = OpenFlowsWater.Open(filepath))
+            // For some odd reason, a directory with given path is created
+            if(Directory.Exists(subModelFilePath)) Directory.Delete(subModelFilePath);  
+
+
+            // The actual sqlite file path is tad bit different
+            subModelFilePath += ".sqlite";
+
+            // Cache the waterModel of exported submodel
+            using (var waterModel = OpenFlowsWater.Open(subModelFilePath))
             {
-                SummaryManager.Instance.AddModelSummary($"Exported Submodel", waterModel);
+                ExportedSubmodelWaterModel = waterModel;
             }
 
+            pi.IncrementStep();
+            pi.EndTask();
+
+
+            return subModelFilePath;
         }
 
         public void ImportSubmodel(
             string submodelFilePath,
             string submodelProjectLabel,
             IProject baseProject,
-            IWaterModel waterModel,
             IProgressIndicator pi)
         {
+            Log.Information("About to import the secondary model as a submodel...");
+            var waterModel = WaterApplicationManager.GetInstance().WaterModelFor(baseProject);
+
             pi.AddTask($"Importing {submodelProjectLabel} submodel to {baseProject.Label}...");
             pi.IncrementTask();
             pi.BeginTask(1);
@@ -113,10 +130,6 @@ namespace OFW.ModelMerger.Domain
                     .LayoutController
                     .SynchronizeWithDatabase((IGraphicalProject)baseProject, new NullProgressIndicator());
 
-
-                // Generate the summary
-                SummaryManager.Instance.AddModelSummary($"Combined Model", waterModel);
-
             }
             finally
             {
@@ -124,18 +137,18 @@ namespace OFW.ModelMerger.Domain
                 if (piLocal != null) piLocal.Done();
             }
 
-
             pi.IncrementStep();
             pi.EndTask();
         }
         #endregion
 
         #region Public Properties
+        public IWaterModel ExportedSubmodelWaterModel { get; private set; }
         #endregion
 
         #region Private Properties
         private IWaterModel WaterModel { get; set; }
-        private WaterParentFormModel WaterParentFormModel => (WaterParentFormModel)ApplicationManager.GetInstance().ParentFormModel;
+        private WaterParentFormModel WaterParentFormModel => (WaterParentFormModel)WaterApplicationManager.GetInstance().ParentFormModel;
         #endregion
 
     }
