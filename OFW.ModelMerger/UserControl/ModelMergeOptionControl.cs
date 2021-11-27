@@ -70,7 +70,8 @@ namespace OFW.ModelMerger.UserControl
               new Size(400, 400)
               ).ShowDialog();
 
-            modelMergeOptionControlModel.Options.Scenario = ModelMergeOptionControlModel.WaterModel.ActiveScenario;
+            if (ModelMergeOptionControlModel.WaterModel != null)
+                modelMergeOptionControlModel.Options.Scenario = ModelMergeOptionControlModel.WaterModel.ActiveScenario;
         }
         #endregion
 
@@ -149,7 +150,6 @@ namespace OFW.ModelMerger.UserControl
             // 
             // toolStrip1
             // 
-            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButtonOpen,
             this.toolStripButtonSelectScenario,

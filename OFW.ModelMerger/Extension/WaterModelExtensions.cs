@@ -297,9 +297,9 @@ namespace OFW.ModelMerger.Extentions
     #region Water Network Pipe Diameter Summary
     public interface IWaterNetworkPipeDiameterSummary
     {
-        IList<double> DistinctDiameters { get; }
-        IDictionary<double, double> DiameterToPipeCountMap { get; }
-        IDictionary<double, double> DiameterToPipeLengthMap { get; }
+        IList<string> DistinctDiameters { get; }
+        IDictionary<string, double> DiameterToPipeCountMap { get; }
+        IDictionary<string, double> DiameterToPipeLengthMap { get; }
     }
 
     public class PipeDiameterSummary : IWaterNetworkPipeDiameterSummary
@@ -317,11 +317,12 @@ namespace OFW.ModelMerger.Extentions
         #region Private Methods
         private void Build()
         {
-            var diameterUnit = WaterModel.Units.NetworkUnits.Pipe.DiameterUnit.ShortLabel;
+            var diameterUnit = WaterModel.Units.NetworkUnits.Pipe.DiameterUnit;
+            var diameterUnitLabel = diameterUnit.ShortLabel;
             var lengthUnit = WaterModel.Units.NetworkUnits.Pipe.LengthUnit;
             var lengthUnitLabel = lengthUnit.ShortLabel;
 
-            var titleColumn = new DataColumn($"Diameter ({diameterUnit})", typeof(string));
+            var titleColumn = new DataColumn($"Diameter ({diameterUnitLabel})", typeof(string));
             var countColumn = new DataColumn("Count", typeof(string));
             var lengthColumn = new DataColumn($"Length ({lengthUnitLabel})", typeof(string));
 
@@ -331,7 +332,7 @@ namespace OFW.ModelMerger.Extentions
 
             foreach (var pipe in WaterNetwork.Pipes.Elements())
             {
-                var diameter = pipe.Input.Diameter;
+                var diameter = diameterUnit.FormatValue(pipe.Input.Diameter);
                 if (!DistinctDiameters.Contains(diameter)) DistinctDiameters.Add(diameter);
 
                 // Pipe Count
@@ -370,9 +371,9 @@ namespace OFW.ModelMerger.Extentions
 
         #region Public Properties
         public DataTable DataTable { get; set; }
-        public IList<double> DistinctDiameters { get; } = new List<double>();
-        public IDictionary<double, double> DiameterToPipeCountMap { get; } = new Dictionary<double, double>();
-        public IDictionary<double, double> DiameterToPipeLengthMap { get; } = new Dictionary<double, double>();
+        public IList<string> DistinctDiameters { get; } = new List<string>();
+        public IDictionary<string, double> DiameterToPipeCountMap { get; } = new Dictionary<string, double>();
+        public IDictionary<string, double> DiameterToPipeLengthMap { get; } = new Dictionary<string, double>();
         #endregion
 
         #region Private Properties

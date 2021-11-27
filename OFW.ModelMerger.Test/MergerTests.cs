@@ -136,7 +136,7 @@ namespace OFW.ModelMerger.Test
 
             // Add another model
             OpenFlowsWater.SetMaxProjects(5);
-            var anotherModelPath = base.BuildTestFilename("Example5.wtg");
+            var anotherModelPath = base.BuildTestFilename("Example8.wtg");
             using(var waterModel = OpenFlowsWater.Open(anotherModelPath))
             {
                 elementsCountSummary.AddModel(waterModel);
@@ -174,7 +174,7 @@ namespace OFW.ModelMerger.Test
 
             // All In one (Model Summary)
             var modelSummaryTable = WaterModel.ModelSummary().ToString();
-            Assert.AreEqual(modelSummaryTable.Count(s => s == '\n'), 113);
+            Assert.AreEqual(modelSummaryTable.Count(s => s == '\n'), 102);
             Console.WriteLine();
             Console.WriteLine("All Tables at once");
             Console.WriteLine(modelSummaryTable);
@@ -196,7 +196,7 @@ namespace OFW.ModelMerger.Test
 
             var summary = SummaryManager.Instance.ToString();
             Assert.NotNull(summary);
-            Assert.AreEqual(summary.Length, 9016);
+            Assert.AreEqual(summary.Length, 9115);
 
             Console.WriteLine(summary);
 

@@ -337,7 +337,6 @@ namespace OFW.ModelMerger.Forms
             }
 
         }
-
         private void UpdateFormText()
         {
             var primaryName = modelMergeOptionControlPrimary.ModelMergeOptionControlModel.WaterModel?.ModelInfo.ModelFileInfo().Name;
@@ -345,7 +344,6 @@ namespace OFW.ModelMerger.Forms
 
             Text = $"Model Merger | {primaryName} ← {secondaryName}";
         }
-
         private void OpenPrimaryModel()
         {
             modelMergeOptionControlPrimary.ModelMergeOptionControlModel.WaterModel?.Close();
@@ -355,7 +353,6 @@ namespace OFW.ModelMerger.Forms
             {
                 OpenFile(open.FileName);
                 modelMergeOptionControlPrimary.ModelMergeOptionControlModel.Options.ProjectPath = open.FileName;
-
                 modelMergeOptionControlPrimary.ModelMergeOptionControlModel.Project = ParentFormModel.CurrentProject;
                 modelMergeOptionControlPrimary.ModelMergeOptionControlModel.WaterModel = AppManager.CurrentWaterModel;
 

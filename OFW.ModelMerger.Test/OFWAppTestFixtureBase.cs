@@ -1,7 +1,4 @@
 ﻿using Haestad.Framework.Application;
-using Haestad.Framework.Windows.Forms.Forms;
-using Haestad.LicensingFacade;
-using Haestad.Support.Support;
 using NUnit.Framework;
 using OpenFlows.Application;
 using OpenFlows.Water;
@@ -25,25 +22,12 @@ namespace OFW.ModelMerger.Test
         [SetUp]
         public void Setup()
         {
-            if (!TestUnitPermission.IsTestUnitRunning())
-                TestUnitPermission.Assert();
+            ApplicationManagerBase.SetApplicationManager(new WaterApplicationManager());            
+            OpenFlowsWater.SetMaxProjects(5);
 
-            Assert.AreEqual(LicenseRunStatusEnum.OK, OpenFlowsWater.StartSession(WaterProductLicenseType.WaterGEMS));
-            Assert.AreEqual(true, OpenFlowsWater.IsValid());
-
-
-            ApplicationManagerBase.SetApplicationManager(new WaterApplicationManager());
-            
-            var pfsd = new ParentFormSurrogateDelegate((fm) =>
-            {
-                WaterAppParentForm = new WaterAppParentForm(fm);
-                return WaterAppParentForm;
-            });
-            // ApplicationManager.GetInstance().SetParentFormSurrogateDelegate(pfsd)
-
-            
-            //ApplicationManager.GetInstance().Start();
-            //ApplicationManager.GetInstance().Start(false); // do not show the ParentForm which blocks the automated testing.
+            // By passing in false, this will suppress the primary user interface.
+            // Make sure you are logged into CONNECTION client.
+            WaterApplicationManager.GetInstance().Start(false);
 
             SetupImpl();
         }
@@ -53,17 +37,9 @@ namespace OFW.ModelMerger.Test
         [TearDown]
         public void Teardown()
         {
-            WaterAppParentForm.CloseAllModels();
-
-            if (WaterModel != null)
-                WaterModel.Dispose();
-            WaterModel = null;
-
             TeardownImpl();
-            OpenFlowsWater.EndSession();
 
-            if (TestUnitPermission.IsTestUnitRunning())
-                TestUnitPermission.RevertAssert();
+            WaterApplicationManager.GetInstance().Stop();
         }
         protected virtual void TeardownImpl()
         {
@@ -73,10 +49,10 @@ namespace OFW.ModelMerger.Test
         #region Protected Methods
         protected void OpenModel(string filename)
         {
-            OpenFlowsWater.StartSession(ParentFormModel.LicensedFeatureSet);
-            WaterAppParentForm.FileOpen(filename);
+            ProjectProperties pp = ProjectProperties.Default;
+            pp.NominalProjectPath = filename;
 
-            WaterModel = OpenFlowsWater.GetModel(ParentFormModel.CurrentProject);
+            WaterApplicationManager.GetInstance().ParentFormModel.OpenProject(pp);
         }
         protected virtual string BuildTestFilename(string baseFilename)
         {
@@ -85,33 +61,8 @@ namespace OFW.ModelMerger.Test
         #endregion
 
         #region Protected Properties
-        protected IWaterModel WaterModel { get; private set; }
-        protected WaterAppParentForm WaterAppParentForm { get; private set; }
-        protected HaestadParentFormModel ParentFormModel => WaterAppParentForm.ParentFormModel;
+        protected IWaterModel WaterModel => WaterApplicationManager.GetInstance().CurrentWaterModel;
+        protected IProject Project => WaterApplicationManager.GetInstance().ParentFormModel.CurrentProject;
         #endregion
-    }
-
-
-    public class WaterAppParentForm : HaestadParentForm, IParentFormSurrogate
-    {
-        #region Constructor
-        public WaterAppParentForm(HaestadParentFormModel parentFormModel)
-            : base(parentFormModel)
-        {
-            //InitializeComponent();
-        }
-        #endregion
-
-        #region Public Methods
-        public void SetParentWindowHandle(long handle)
-        {
-            //no-op
-        }
-        #endregion
-
-        #region Public Properties
-        public new HaestadParentFormModel ParentFormModel => base.ParentFormModel;
-        #endregion
-
     }
 }
