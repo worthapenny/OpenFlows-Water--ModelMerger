@@ -184,7 +184,6 @@ namespace OFW.ModelMerger.Test
         public void SummaryManagerTest()
         {
             SummaryManager.Instance.AddBaseModel(WaterModel);
-            //SummaryManager.Instance.AddModelSummary("BASE MODEL", WaterModel);
 
             var secondarryModelPath = base.BuildTestFilename("Example4.wtg");
             var model1 = OpenFlowsWater.Open(secondarryModelPath);
@@ -196,7 +195,7 @@ namespace OFW.ModelMerger.Test
 
             var summary = SummaryManager.Instance.ToString();
             Assert.NotNull(summary);
-            Assert.AreEqual(summary.Length, 9115);
+            Assert.AreEqual(summary.Length, 8998);
 
             Console.WriteLine(summary);
 

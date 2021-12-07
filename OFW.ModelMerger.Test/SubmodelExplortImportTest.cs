@@ -1,8 +1,11 @@
 ﻿using Haestad.Framework.Application;
 using Haestad.Support.User;
 using NUnit.Framework;
+using OFW.ModelMerger.Extentions;
 using OFW.ModelMerger.FormModel;
+using OpenFlows.Water.Domain;
 using System.IO;
+using System.Linq;
 
 namespace OFW.ModelMerger.Test
 {
@@ -38,7 +41,16 @@ namespace OFW.ModelMerger.Test
 
 
             var formModel = new ModelMergerFormModel();
+            IWaterModel primaryModelBeforeImport = null;
+            IWaterModel primaryWaterModel = null;
+            IWaterModel secondaryWaterModel = null;
 
+            // Because Primary model will have secondary model imported
+            // Let's open up the primary model separately
+            var primaryModelBeforeImport_ElementsCount = 0;
+            var primaryModelBeforeImport_ComponentsCount = 0; 
+
+            
             // setup Primary
             formModel.ModelMergeOptionControlModelPrimary = new UserControlModel.ModelMergeOptionControlModel();
             formModel.ModelMergeOptionControlModelPrimary.OpenModel(
@@ -48,6 +60,10 @@ namespace OFW.ModelMerger.Test
                     formModel.ModelMergeOptionControlModelPrimary.Options.ProjectPath = example1;
                     formModel.ModelMergeOptionControlModelPrimary.Project = Project;
                     formModel.ModelMergeOptionControlModelPrimary.WaterModel = WaterModel;
+
+                    primaryWaterModel = WaterModel;
+                    primaryModelBeforeImport_ElementsCount = WaterModel.Network.Elements().Count;
+                    primaryModelBeforeImport_ComponentsCount = WaterModel.Components.Elements().Count;
                 },
                 true);
             formModel.ModelMergeOptionControlModelPrimary.Options.ShortName = "Ex1";
@@ -57,29 +73,48 @@ namespace OFW.ModelMerger.Test
             // setup Secondary
             formModel.ModelMergeOptionControlModelSecondary = new UserControlModel.ModelMergeOptionControlModel();
             formModel.ModelMergeOptionControlModelSecondary.OpenModel(
-                () => {
+                () =>
+                {
                     OpenModel(example5);
                     formModel.ModelMergeOptionControlModelSecondary.Options.ProjectPath = example1;
                     formModel.ModelMergeOptionControlModelSecondary.Project = Project;
                     formModel.ModelMergeOptionControlModelSecondary.WaterModel = WaterModel;
+                    secondaryWaterModel = WaterModel;
                 },
                 false);
             formModel.ModelMergeOptionControlModelSecondary.Options.ShortName = "Ex5";
-            formModel.ModelMergeOptionControlModelSecondary.Options.Scenario = 
+            formModel.ModelMergeOptionControlModelSecondary.Options.Scenario =
                 formModel.ModelMergeOptionControlModelSecondary.WaterModel.ActiveScenario;
 
             // Perform the merge
             formModel.Merge(new NullProgressIndicator());
 
-            // save as the combined model
-            var app = ProjectProperties.Default;
-            app.NominalProjectPath = Path.Combine(TempDir, "TestProject.wtg");
-            formModel.ModelMergeOptionControlModelPrimary.Project.SaveAs(app);
+             
+            // Selection Set
+            var secondaryModelLabel = secondaryWaterModel.ModelInfo.ModelFileInfo().Name;
+            var ss = primaryWaterModel
+                .SelectionSets
+                .Elements()
+                .Where(s => s.Label == $"MM_AllElements_{secondaryModelLabel}");
+            Assert.IsNotNull(ss);
+            Assert.IsTrue(ss.Any());
+            Assert.AreEqual(ss.First().Get().Count, secondaryWaterModel.Network.Elements().Count);
+
+            // Network 
+            Assert.AreEqual(
+                (primaryModelBeforeImport_ElementsCount + secondaryWaterModel.Network.Elements().Count),
+                primaryWaterModel.Network.Elements().Count);
+
+           
+            // Support, a.k.a Components
+            Assert.AreEqual(
+                (primaryModelBeforeImport_ComponentsCount + secondaryWaterModel.Components.Elements().Count),
+                primaryWaterModel.Components.Elements().Count);
 
 
-
-            Assert.True(true);
-
+            // Close models
+            primaryWaterModel.Close();
+            secondaryWaterModel.Close();    
         }
         #endregion
 

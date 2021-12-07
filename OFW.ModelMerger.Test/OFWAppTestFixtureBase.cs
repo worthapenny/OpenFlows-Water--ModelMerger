@@ -23,11 +23,11 @@ namespace OFW.ModelMerger.Test
         public void Setup()
         {
             ApplicationManagerBase.SetApplicationManager(new WaterApplicationManager());            
-            OpenFlowsWater.SetMaxProjects(5);
 
             // By passing in false, this will suppress the primary user interface.
             // Make sure you are logged into CONNECTION client.
             WaterApplicationManager.GetInstance().Start(false);
+            OpenFlowsWater.SetMaxProjects(5);
 
             SetupImpl();
         }

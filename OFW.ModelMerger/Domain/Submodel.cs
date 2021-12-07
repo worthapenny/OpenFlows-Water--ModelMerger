@@ -14,6 +14,7 @@ using Haestad.Framework.Windows.Forms.Forms;
 using Haestad.Idaho.Importer.Submodels;
 using Haestad.Support.Support;
 using Haestad.Support.User;
+using OFW.ModelMerger.Extentions;
 using OpenFlows.Water;
 using OpenFlows.Water.Application;
 using OpenFlows.Water.Domain;
@@ -52,10 +53,13 @@ namespace OFW.ModelMerger.Domain
             if (!Directory.Exists(subModelFilePath)) Directory.CreateDirectory(subModelFilePath);
 
             // Select all elements in the model
-            var elements = WaterModel
-                .Network
-                .Elements()
-                .Select(e => new ElementIdentifier((int)e.WaterElementType, e.Id)).ToArray();
+            var allElements = WaterModel.Network.Elements();
+            var elements = allElements.Select(e => new ElementIdentifier((int)e.WaterElementType, e.Id)).ToArray();
+
+            // Create a section-set of the elements that are about to be imported 
+            var ss = WaterModel.SelectionSets.Create();
+            ss.Label = $"MM_AllElements_{WaterModel.ModelInfo.ModelFileInfo().Name}";
+            ss.Set(allElements);
 
             // Run the Submodel export command
             WaterParentFormModel.ParentFormUIModel.ExecuteCommand(
@@ -63,7 +67,7 @@ namespace OFW.ModelMerger.Domain
                 new object[] { subModelFilePath, elements });
 
             // For some odd reason, a directory with given path is created
-            if(Directory.Exists(subModelFilePath)) Directory.Delete(subModelFilePath);  
+            if (Directory.Exists(subModelFilePath)) Directory.Delete(subModelFilePath);
 
 
             // The actual sqlite file path is tad bit different
