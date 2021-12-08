@@ -271,7 +271,8 @@ First combine the two models together, save it. Close the application and use th
 
 ## Other projects based on OpenFlows Water and/or WaterObjects.NET
 
-* [BingBackgroundAdder](http://#) 
+* [Bing Background Adder]([http://#](https://github.com/worthapenny/OpenFlows-Water--BingBackground)) 
+* [Model Merger]()
 
 ## Did you know?
 
