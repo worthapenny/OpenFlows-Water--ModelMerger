@@ -7,7 +7,7 @@
  */
 
 
-using OFW.ModelMerger.Forms;
+using OFW.ModelMerger.Form;
 using OpenFlows.Application;
 using OpenFlows.Water;
 using OpenFlows.Water.Application;

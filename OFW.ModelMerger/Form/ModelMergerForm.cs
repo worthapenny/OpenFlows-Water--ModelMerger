@@ -23,7 +23,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace OFW.ModelMerger.Forms
+namespace OFW.ModelMerger.Form
 {
     public class ModelMergerForm : HaestadParentForm, IParentFormSurrogate
     {

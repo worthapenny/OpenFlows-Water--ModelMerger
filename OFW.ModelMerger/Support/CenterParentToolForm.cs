@@ -15,7 +15,7 @@ namespace OFW.ModelMerger.Support
     public class CenterParentToolForm
     {
         #region Constructor
-        public CenterParentToolForm(string title, Form parentForm, Control control, Size size)
+        public CenterParentToolForm(string title, System.Windows.Forms.Form parentForm, Control control, Size size)
         {
             this.title = title;
             this.parentForm = parentForm;
@@ -27,7 +27,7 @@ namespace OFW.ModelMerger.Support
         #region Public Methods
         public DialogResult ShowDialog()
         {
-            var form = new Form();
+            var form = new System.Windows.Forms.Form();
 
             control.Dock = DockStyle.Fill;
             form.Controls.Add(control);
@@ -50,7 +50,7 @@ namespace OFW.ModelMerger.Support
 
         #region Fields
         string title;
-        Form parentForm;
+        System.Windows.Forms.Form parentForm;
         Control control;
         Size size;
         #endregion
