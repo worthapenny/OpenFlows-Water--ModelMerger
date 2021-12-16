@@ -15,6 +15,7 @@ using Serilog;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 namespace OFW.ModelMerger.FormModel
 {
@@ -78,6 +79,50 @@ namespace OFW.ModelMerger.FormModel
 
             if (File.Exists(submodelPath))
                 File.Delete(submodelPath);
+        }
+        public bool CanMerge(out StringBuilder message, IProgressIndicator pi)
+        {
+            var canMerge = true;
+            message = new StringBuilder();
+
+            pi.AddTask("Validating inputs...");
+            pi.IncrementTask();
+            pi.BeginTask(1);
+
+            // Make sure the primary models is opened
+            if (ModelMergeOptionControlModelPrimary.WaterModel == null)
+            {
+                canMerge = false;
+                message.AppendLine("Please make sure to open primary model");
+            }
+
+            // Make sure the secondary models is opened
+            if (ModelMergeOptionControlModelSecondary.WaterModel == null)
+            {
+                canMerge = false;
+                message.AppendLine("Please make sure to open secondary model");
+            }
+
+            // Make sure secondary's short name is not blank
+            if (string.IsNullOrWhiteSpace(ModelMergeOptionControlModelSecondary.Options.ShortName))
+            {
+                canMerge = false;
+                message.AppendLine("The short name of secondary model cannot be blank");
+            }
+
+            // Make sure short name aren't the same
+            if(ModelMergeOptionControlModelPrimary.Options.ShortName ==
+                ModelMergeOptionControlModelSecondary.Options.ShortName)
+            {
+                canMerge = false;
+                message.AppendLine("Short name for both models cannot be the same");
+            }
+
+
+            pi.IncrementStep();
+            pi.EndTask();
+
+            return canMerge;
         }
         #endregion
 

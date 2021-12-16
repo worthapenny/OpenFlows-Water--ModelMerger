@@ -22,6 +22,7 @@ using Serilog;
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Text;
 using System.Windows.Forms;
 
 namespace OFW.ModelMerger.Form
@@ -67,8 +68,8 @@ namespace OFW.ModelMerger.Form
             // 
             // groupBoxPrimary
             // 
-            this.groupBoxPrimary.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.groupBoxPrimary.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxPrimary.Controls.Add(this.panelPrimary);
             this.groupBoxPrimary.Location = new System.Drawing.Point(8, 8);
@@ -90,8 +91,8 @@ namespace OFW.ModelMerger.Form
             // 
             // groupBoxSecondary
             // 
-            this.groupBoxSecondary.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.groupBoxSecondary.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxSecondary.Controls.Add(this.panelSecondary);
             this.groupBoxSecondary.Location = new System.Drawing.Point(3, 8);
@@ -240,8 +241,8 @@ namespace OFW.ModelMerger.Form
                 "2. Make sure right scenario is active" + Environment.NewLine +
                 "3. Enter a short, 3 to 5 characters, name/acronym" + Environment.NewLine +
                 "4. Import" + Environment.NewLine +
-                "5. Save As." + Environment.NewLine + Environment.NewLine;               
-        }      
+                "5. Save As." + Environment.NewLine + Environment.NewLine;
+        }
         protected override void InitializeEvents()
         {
             modelMergeOptionControlPrimary.ProjectOpenExecuted += (s, e) =>
@@ -276,10 +277,10 @@ namespace OFW.ModelMerger.Form
             var reportRTB = new RichTextBox();
             reportRTB.Dock = DockStyle.Fill;
             reportRTB.Font = richTextBoxLogControl.Font;
-            
+
             reportRTB.Text = SummaryManager.Instance.ToString();
 
-            var form = new CenterParentToolForm("Model Merge Report", this, reportRTB, new Size(600,600));
+            var form = new CenterParentToolForm("Model Merge Report", this, reportRTB, new Size(600, 600));
             form.ShowDialog();
         }
         private void ShowScenarioSelectionDialog(object sender)
@@ -297,38 +298,40 @@ namespace OFW.ModelMerger.Form
         }
         private void SaveProjectAs()
         {
-            if (PromptSaveAs(ParentFormModel.CurrentProject) == DialogResult.OK){
+            if (PromptSaveAs(ParentFormModel.CurrentProject) == DialogResult.OK)
+            {
                 var newProjectFullPath = ParentFormModel.CurrentProject.FullPath;
                 Log.Information($"Project is saved as at: {newProjectFullPath}");
 
                 var mbox = MessageBox.Show(this, "Would you like to open the newly saved file in the main application?", "Open in Water[GEMS/CAD/OPS]", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if(mbox == DialogResult.Yes)
+                if (mbox == DialogResult.Yes)
                 {
                     Process.Start(newProjectFullPath);
                 }
             }
         }
         private void MergeModels()
-        {
-            if (modelMergeOptionControlPrimary.ModelMergeOptionControlModel.WaterModel == null ||
-                    modelMergeOptionControlSecondary.ModelMergeOptionControlModel.WaterModel == null)
-            {
-                var message = "Please make sure to open primary as well as secondary models";
-                Log.Warning(message);
-                MessageBox.Show(this, message, "Model Open", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
+        {           
             var piForm = new ProgressIndicatorForm(true, this);
             bool success = true;
             try
             {
-                ModelMergerFormModel.Merge(piForm);
+                var validationMesage = new StringBuilder();
+                if (ModelMergerFormModel.CanMerge(out validationMesage, piForm))
+                {
+                    ModelMergerFormModel.Merge(piForm);
 
-                // Suppress any prompts to save and treat the project as if no changes were made.
-                ((ProjectBase)modelMergeOptionControlPrimary.ModelMergeOptionControlModel.Project).MakeClean();
-                ((ProjectBase)modelMergeOptionControlSecondary.ModelMergeOptionControlModel.Project).MakeClean();
+                    // Suppress any prompts to save and treat the project as if no changes were made.
+                    ((ProjectBase)modelMergeOptionControlPrimary.ModelMergeOptionControlModel.Project).MakeClean();
+                    ((ProjectBase)modelMergeOptionControlSecondary.ModelMergeOptionControlModel.Project).MakeClean();
 
+                }
+                else
+                {
+                    success = false;
+                    var message = validationMesage.ToString();
+                    MessageBox.Show(this, message, "Validation Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             catch (Exception ex)
             {
@@ -374,7 +377,7 @@ namespace OFW.ModelMerger.Form
                 modelMergeOptionControlPrimary.ModelMergeOptionControlModel.WaterModel = AppManager.CurrentWaterModel;
 
                 UpdateFormText();
-                
+
                 // Suppress any prompts to save and treat the project as if no changes were made.
                 ((ProjectBase)modelMergeOptionControlPrimary.ModelMergeOptionControlModel.Project).MakeClean();
 
