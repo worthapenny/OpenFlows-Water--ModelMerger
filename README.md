@@ -1,6 +1,6 @@
 # Merge two or more WaterGEMS/WaterCAD/WaterOPS models together via submodel export/import
 
-Easily combine/join/import two or more Water ([WaterGEMS](https://www.bentley.com/en/products/product-line/hydraulics-and-hydrology-software/watergems)/[WaterCAD](https://www.bentley.com/en/products/product-line/hydraulics-and-hydrology-software/watercad)/WaterOPW) models together using OpenFlows API and [WaterObjects.NET](https://communities.bentley.com/products/hydraulics___hydrology/w/hydraulics_and_hydrology__wiki/17459/waterobjects-net---extending-the-capabilities-of-your-openflows-product) API.
+Easily combine/join/import/merge two or more Water ([WaterGEMS](https://www.bentley.com/en/products/product-line/hydraulics-and-hydrology-software/watergems)/[WaterCAD](https://www.bentley.com/en/products/product-line/hydraulics-and-hydrology-software/watercad)/WaterOPW) models together using OpenFlows API and [WaterObjects.NET](https://communities.bentley.com/products/hydraulics___hydrology/w/hydraulics_and_hydrology__wiki/17459/waterobjects-net---extending-the-capabilities-of-your-openflows-product) API.
 
 ## Download
 
@@ -19,25 +19,27 @@ Open up the `OFW.ModelMerger.exe` and screen like below loads.
 
 ### Primary model
 
-1. Select the base model (primary) on this which the other model will be imported to combine the two together.
+1. Select the base model (primary) on which the other model will be imported to combine the two together.
 2. [Optional but recommended] Give a short, 3 to 6 letter long, name (acronym)
    1. All the labels in the model will be updated with this short name, except the scenario/alternative/cacl. options to be merged
 3. If needed, change the model to the right scenario
 
 ### Secondary model
 
-1. Select the other model (secondary which will get imported to the primary model.
-2. Give a short, 3 to 6 letter long, name (acronym)
+1. Select the other model (secondary which will get imported to the primary model).
+2. [**Important**] Give a short, 3 to 6 letter long, name (acronym)
    1. All the labels in the model will be updated with this short name, except the scenario/alternative/cacl. options to be merged
 3. If needed, change the model to the right scenario
 
 ## Review the summary
 
-Click on the `Report` button and review the summary. Please double check the combined model in the main UI. Feel free to log bugs for any issue discovered and thanks!
+Click on the `Report` button and review the summary. Please double check the combined model in the main (WaterGEMS) UI. It is expected to have the imported model at a different location. A selection set of the secondary model is created to move the elements to the right location.
+
+Feel free to log bugs for any issue discovered and thanks!
 
 ![Pipe Summary Report](images/combined_pipe_report.png "Summary Report")
 
-### Sample Report
+### Sample Report [Expandable]
 
 <details>
   <summary>Exapand this to see a sample summary output. This is generated where Example5 is the primary and Example 8 is the secondary.</summary>
@@ -278,7 +280,7 @@ First combine the two models together, save it. Close the application and use th
 
 Now, you can work with Bentley Water products with python as well. Check out:
 
-* [Github pyofw](https://github.com/worthapenny/pyofw).
+* [Github pyofw](https://github.com/worthapenny/pyofw)
 * [PyPI pyofw](https://pypi.org/project/pyofw/)
 
 ![pypi-image](images/pypi_pyofw.png)

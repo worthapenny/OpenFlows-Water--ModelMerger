@@ -14,7 +14,6 @@ using OFW.ModelMerger.Support;
 using OpenFlows.Water;
 using OpenFlows.Water.Domain.ModelingElements.NetworkElements;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using static OFW.ModelMerger.Extentions.CalcOptionsExtensions;

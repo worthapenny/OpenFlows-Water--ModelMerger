@@ -14,6 +14,7 @@ using Haestad.Support.Support;
 using OFW.ModelMerger.Extentions;
 using OFW.ModelMerger.FormModel;
 using OFW.ModelMerger.Support;
+using OFW.ModelMerger.UserControl;
 using OpenFlows.Application;
 using OpenFlows.Water;
 using OpenFlows.Water.Application;
@@ -243,7 +244,6 @@ namespace OFW.ModelMerger.Form
         }      
         protected override void InitializeEvents()
         {
-
             modelMergeOptionControlPrimary.ProjectOpenExecuted += (s, e) =>
                 modelMergeOptionControlPrimary.OpenModel(OpenPrimaryModel);
 
@@ -256,6 +256,10 @@ namespace OFW.ModelMerger.Form
 
             modelMergeOptionControlPrimary.SaveAsExecuted += (o, e) => SaveProjectAs();
 
+
+
+            modelMergeOptionControlPrimary.ShowScenarioSelectionDialogClicked += (s, e) => ShowScenarioSelectionDialog(s);
+            modelMergeOptionControlSecondary.ShowScenarioSelectionDialogClicked += (s, e) => ShowScenarioSelectionDialog(s);
         }
         #endregion
 
@@ -277,6 +281,19 @@ namespace OFW.ModelMerger.Form
 
             var form = new CenterParentToolForm("Model Merge Report", this, reportRTB, new Size(600,600));
             form.ShowDialog();
+        }
+        private void ShowScenarioSelectionDialog(object sender)
+        {
+            var userControl = (ModelMergeOptionControl)sender;
+            WaterApplicationManager.GetInstance().ParentFormModel.CurrentProject = userControl.ModelMergeOptionControlModel.Project;
+
+            new CenterParentToolForm(
+              "Scenario",
+              FindForm(),
+              WaterApplicationManager.GetInstance().ParentFormUIModel.ScenarioManagerProxy,
+              new Size(350, 350)
+              ).ShowDialog();
+
         }
         private void SaveProjectAs()
         {

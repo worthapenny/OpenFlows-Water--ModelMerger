@@ -30,12 +30,14 @@ namespace OFW.ModelMerger.UserControl
             toolStripButtonImport.Image = ((Icon)GraphicResourceManager.Current[StandardGraphicResourceNames.Import]).ToBitmap();
             toolStripButtonShowReport.Image = ((Icon)GraphicResourceManager.Current[StandardGraphicResourceNames.Report]).ToBitmap();
             toolStripButtonSaveAs.Image = ((Icon)GraphicResourceManager.Current[StandardGraphicResourceNames.SaveAs]).ToBitmap();
+                        
+            toolStripButtonOpen.Click += (s, e) => { ProjectOpenExecuted?.Invoke(s, e); };
+            toolStripButtonImport.Click += (s, e) => { MergeExecuted?.Invoke(s, e); };
+            toolStripButtonSaveAs.Click += (s, e) => { SaveAsExecuted?.Invoke(s, e); };
+            toolStripButtonShowReport.Click += (s, e) => { ShowReportExecuted?.Invoke(s, e); };
+            toolStripButtonSelectScenario.Click += (s, e) => { ShowScenarioSelectionDialogClicked?.Invoke(this, e); };
 
-            toolStripButtonSelectScenario.Click += (s, e) => ShowScenarioSelectionDialog();
-            toolStripButtonOpen.Click += (s, e) => { if (ProjectOpenExecuted != null) ProjectOpenExecuted(s, e); };
-            toolStripButtonImport.Click += (s, e) => { if (MergeExecuted != null) MergeExecuted(s, e); };
-            toolStripButtonSaveAs.Click += (s, e) => { if (SaveAsExecuted != null) SaveAsExecuted(s, e); };
-            toolStripButtonShowReport.Click += (s, e) => { if (ShowReportExecuted != null) ShowReportExecuted(s, e); };
+            
         }
         #endregion
 
@@ -44,12 +46,10 @@ namespace OFW.ModelMerger.UserControl
         {
             ModelMergeOptionControlModel.OpenModel(modelOpener, IsPrimary);
 
-            labelScenarioSelected.DataBindings.Add(
-                nameof(labelScenarioSelected.Text),
-                ModelMergeOptionControlModel.Options.Scenario,
-                nameof(ModelMergeOptionControlModel.Options.Scenario.Label),
-                false,
-                DataSourceUpdateMode.OnPropertyChanged, string.Empty);
+            if (ModelMergeOptionControlModel.WaterModel == null) return;
+
+            UpdateActiveScenario();
+            WaterApplicationManager.GetInstance().ParentFormModel.ScenarioEventChannel.ScenarioChanged += (s, e) => UpdateActiveScenario();
 
             textBoxShortName.DataBindings.Add(
                 nameof(textBoxShortName.Text),
@@ -61,17 +61,10 @@ namespace OFW.ModelMerger.UserControl
         #endregion
 
         #region Private Methods
-        private void ShowScenarioSelectionDialog()
+        private void UpdateActiveScenario()
         {
-            new CenterParentToolForm(
-              "Scenario",
-              FindForm(),
-              WaterApplicationManager.GetInstance().ParentFormUIModel.ScenarioManagerProxy,
-              new Size(400, 400)
-              ).ShowDialog();
-
-            if (ModelMergeOptionControlModel.WaterModel != null)
-                modelMergeOptionControlModel.Options.Scenario = ModelMergeOptionControlModel.WaterModel.ActiveScenario;
+            labelScenarioSelected.Text = ModelMergeOptionControlModel.WaterModel.ActiveScenario.Label;
+            ModelMergeOptionControlModel.Options.Scenario = ModelMergeOptionControlModel.WaterModel.ActiveScenario;
         }
         #endregion
 
@@ -179,7 +172,7 @@ namespace OFW.ModelMerger.UserControl
             this.toolStripButtonSelectScenario.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonSelectScenario.Name = "toolStripButtonSelectScenario";
             this.toolStripButtonSelectScenario.Size = new System.Drawing.Size(24, 24);
-            this.toolStripButtonSelectScenario.Text = "Select Scenaro";
+            this.toolStripButtonSelectScenario.Text = "Select Scenario";
             // 
             // toolStripSeparator1
             // 
@@ -237,6 +230,7 @@ namespace OFW.ModelMerger.UserControl
         public event EventHandler SaveAsExecuted;
         public event EventHandler ProjectOpenExecuted;
         public event EventHandler ShowReportExecuted;
+        public event EventHandler ShowScenarioSelectionDialogClicked;
         #endregion
 
         #region Public Methods

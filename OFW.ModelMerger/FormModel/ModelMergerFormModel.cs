@@ -11,7 +11,6 @@ using Haestad.Support.User;
 using OFW.ModelMerger.Extentions;
 using OFW.ModelMerger.Support;
 using OFW.ModelMerger.UserControlModel;
-using OpenFlows.Water.Application;
 using Serilog;
 using System;
 using System.Diagnostics;
@@ -87,11 +86,7 @@ namespace OFW.ModelMerger.FormModel
         #region Public Properties
         public ModelMergeOptionControlModel ModelMergeOptionControlModelPrimary { get; set; }
         public ModelMergeOptionControlModel ModelMergeOptionControlModelSecondary { get; set; }
-        public string SummaryText { get; set; } = String.Empty; // => SummaryBuilder.ToString();
-        #endregion
-
-        #region Private Properties
-        private WaterApplicationManager AppManager => (WaterApplicationManager)WaterApplicationManager.GetInstance();
+        public string SummaryText { get; set; } = String.Empty;
         #endregion
     }
 }

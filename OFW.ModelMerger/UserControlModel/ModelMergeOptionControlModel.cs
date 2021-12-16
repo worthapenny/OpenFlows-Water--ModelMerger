@@ -31,6 +31,8 @@ namespace OFW.ModelMerger.UserControlModel
         {
             modelOpener();
 
+            if (WaterModel == null) return; // Occurs when model is not opened.
+
             // Update Scenario
             Options.Scenario = WaterModel.ActiveScenario;
 
