@@ -103,11 +103,12 @@ namespace OFW.ModelMerger.FormModel
                 message.AppendLine("Please make sure to open secondary model");
             }
 
-            // Make sure secondary's short name is not blank
-            if (string.IsNullOrWhiteSpace(ModelMergeOptionControlModelSecondary.Options.ShortName))
+            // Make sure either of the short name is provided
+            if (string.IsNullOrWhiteSpace(ModelMergeOptionControlModelPrimary.Options.ShortName) &&
+                string.IsNullOrWhiteSpace(ModelMergeOptionControlModelSecondary.Options.ShortName))
             {
                 canMerge = false;
-                message.AppendLine("The short name of secondary model cannot be blank");
+                message.AppendLine("Please provide the short name for at least one model, primary or secondary.");
             }
 
             // Make sure short name aren't the same
