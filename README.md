@@ -273,7 +273,7 @@ First combine the two models together, save it. Close the application and use th
 
 ## Other projects based on OpenFlows Water and/or WaterObjects.NET
 
-* [Isolation Vavle Adder](https://github.com/worthapenny/OpenFlows-Water--IsolationValveAdder)
+* [Isolation Valve Adder](https://github.com/worthapenny/OpenFlows-Water--IsolationValveAdder)
 * [Bing Background Adder](https://github.com/worthapenny/OpenFlows-Water--BingBackground)
 * [Model Merger](https://github.com/worthapenny/OpenFlows-Water--ModelMerger)
 * [Demand to CustomerMeter](https://github.com/worthapenny/OpenFlows-Water--DemandToCustomerMeter)

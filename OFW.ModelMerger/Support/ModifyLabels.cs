@@ -27,6 +27,9 @@ namespace OFW.ModelMerger.Support
         public void Modify(LabelModificationOptions options, IProgressIndicator pi)
         {
             string projectLabel = options.ShortName;
+            if (projectLabel == null || projectLabel.Length == 0)
+                return;
+
             pi.AddTask($"Modifying {projectLabel}'s labels for Network elements...");
             pi.AddTask($"Modifying {projectLabel}'s labels for Support elements...");
             pi.AddTask($"Modifying {projectLabel}'s labels for Selection Sets...");

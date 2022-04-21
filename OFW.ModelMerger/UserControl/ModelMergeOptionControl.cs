@@ -37,7 +37,6 @@ namespace OFW.ModelMerger.UserControl
             toolStripButtonShowReport.Click += (s, e) => { ShowReportExecuted?.Invoke(s, e); };
             toolStripButtonSelectScenario.Click += (s, e) => { ShowScenarioSelectionDialogClicked?.Invoke(this, e); };
 
-            
         }
         #endregion
 
@@ -51,6 +50,7 @@ namespace OFW.ModelMerger.UserControl
             UpdateActiveScenario();
             WaterApplicationManager.GetInstance().ParentFormModel.ScenarioEventChannel.ScenarioChanged += (s, e) => UpdateActiveScenario();
 
+            textBoxShortName.DataBindings.Clear();
             textBoxShortName.DataBindings.Add(
                 nameof(textBoxShortName.Text),
                 ModelMergeOptionControlModel.Options,

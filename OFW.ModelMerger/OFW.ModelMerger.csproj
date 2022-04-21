@@ -94,17 +94,20 @@
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="OpenFlows">
-      <HintPath>C:\Program Files (x86)\Bentley\WaterCAD\x64\OpenFlows.dll</HintPath>
+		<!--<HintPath>C:\Program Files (x86)\Bentley\WaterCAD\x64\OpenFlows.dll</HintPath>-->
+		<HintPath>D:\Development\Perforce\Aspen\Components\OpenFlows\Assemblies\_LastKnownGood\OpenFlows.dll</HintPath>
       <CopyLocal>False</CopyLocal>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="OpenFlows.Water">
-      <HintPath>C:\Program Files (x86)\Bentley\WaterCAD\x64\OpenFlows.Water.dll</HintPath>
-      <CopyLocal>False</CopyLocal>
+		<!--<HintPath>C:\Program Files (x86)\Bentley\WaterCAD\x64\OpenFlows.Water.dll</HintPath>-->
+		<HintPath>D:\Development\Perforce\Aspen\Components\OpenFlows.Water\Assemblies\_LastKnownGood\OpenFlows.Water.dll</HintPath>
+		<CopyLocal>False</CopyLocal>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="OpenFlows.Water.Application">
-      <HintPath>C:\Program Files (x86)\Bentley\WaterCAD\x64\OpenFlows.Water.Application.dll</HintPath>
+	<Reference Include="OpenFlows.Water.Application">
+		<!--<HintPath>C:\Program Files (x86)\Bentley\WaterCAD\x64\OpenFlows.Water.Application.dll</HintPath>-->
+	    <HintPath>D:\Development\Perforce\Aspen\Components\OpenFlows.Water.Application\Assemblies\_LastKnownGood\OpenFlows.Water.Application.dll</HintPath>
       <CopyLocal>False</CopyLocal>
       <SpecificVersion>False</SpecificVersion>
     </Reference>
