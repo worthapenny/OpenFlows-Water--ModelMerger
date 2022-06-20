@@ -23,6 +23,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace OFW.ModelMerger.Form
@@ -251,7 +252,9 @@ namespace OFW.ModelMerger.Form
             modelMergeOptionControlSecondary.ProjectOpenExecuted += (o, e) =>
                 modelMergeOptionControlSecondary.OpenModel(OpenSecondaryModel);
 
-            modelMergeOptionControlPrimary.MergeExecuted += (s, e) => MergeModels();
+            modelMergeOptionControlPrimary.MergeExecuted += (s, e) => MergeModelsAsync();
+
+            modelMergeOptionControlPrimary.SimplifiyExecuted += (s, e) => SimplifyModelAsync();
 
             modelMergeOptionControlPrimary.ShowReportExecuted += (o, e) => ShowReport();
 
@@ -310,7 +313,7 @@ namespace OFW.ModelMerger.Form
                 }
             }
         }
-        private void MergeModels()
+        private async Task MergeModelsAsync()
         {           
             var piForm = new ProgressIndicatorForm(true, this);
             bool success = true;
@@ -319,7 +322,7 @@ namespace OFW.ModelMerger.Form
                 var validationMesage = new StringBuilder();
                 if (ModelMergerFormModel.CanMerge(out validationMesage, piForm))
                 {
-                    ModelMergerFormModel.Merge(piForm);
+                    await ModelMergerFormModel.MergeAsync(piForm);
 
                     // Suppress any prompts to save and treat the project as if no changes were made.
                     ((ProjectBase)modelMergeOptionControlPrimary.ModelMergeOptionControlModel.Project).MakeClean();
@@ -356,6 +359,42 @@ namespace OFW.ModelMerger.Form
                 }
             }
 
+        }
+
+        private async Task SimplifyModelAsync()
+        {
+            var piForm = new ProgressIndicatorForm(true, this);
+            bool success = true;
+            try
+            {
+                var simplifier = new SimplifyScenarioAltCalcs();
+                await simplifier.SimplifyAsync(
+                    waterModel: modelMergeOptionControlPrimary.ModelMergeOptionControlModel.WaterModel,
+                    options: new Domain.LabelModificationOptions(),
+                    pi: piForm);
+            }
+            catch (Exception ex)
+            {
+                success = false;
+                var message = $"ERROR: \n{ex.Message}\n{ex.StackTrace}";
+                Log.Error(ex, message);
+                MessageBox.Show(this, message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                piForm.Done();
+                piForm?.Close();
+            }
+
+            if (success)
+            {
+                var message = "Simplification Completed.\nPlease click on Save As to save the changes.\nYes: To see the summary report.";
+                var results = MessageBox.Show(this, message, "Completed", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                if (results == DialogResult.Yes)
+                {
+                    ShowReport();
+                }
+            }
         }
         private void UpdateFormText()
         {

@@ -15,6 +15,7 @@ using OpenFlows.Water.Domain;
 using Serilog;
 using System;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace OFW.ModelMerger.UserControlModel
 {
@@ -42,9 +43,10 @@ namespace OFW.ModelMerger.UserControlModel
             else
                 SummaryManager.Instance.AddModel(WaterModel);
         }
-        public void SimplifyScenarioAltCalcs(LabelModificationOptions options, IProgressIndicator pi)
+        public async Task SimplifyScenarioAltCalcs(LabelModificationOptions options, IProgressIndicator pi)
         {
-            new SimplifyScenarioAltCalcs().Simplify(WaterModel, options, pi);
+            var simplifier = new SimplifyScenarioAltCalcs();
+            await simplifier.SimplifyAsync(WaterModel, options, pi);
         }
         public void ModifyLabels(IProgressIndicator pi)
         {

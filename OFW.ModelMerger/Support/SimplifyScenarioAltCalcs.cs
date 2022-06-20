@@ -8,6 +8,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Haestad.Support.User;
 using OFW.ModelMerger.Domain;
 using OFW.ModelMerger.Extentions;
@@ -30,7 +31,7 @@ namespace OFW.ModelMerger.Support
         /// Delete S.A.C except for active ones, Merges Alternatives, and make one root scenario
         /// </summary>
         /// <param name="waterModel"></param>
-        public void Simplify(IWaterModel waterModel, LabelModificationOptions options, IProgressIndicator pi)
+        public async Task SimplifyAsync(IWaterModel waterModel, LabelModificationOptions options, IProgressIndicator pi)
         {
             pi.AddTask("Removing S.A.C. that are not active...");
             pi.IncrementTask();
@@ -46,7 +47,7 @@ namespace OFW.ModelMerger.Support
             DeleteScenariosExceptActive(waterModel);          
             DeleteAlternativesExceptActive(waterModel);
             DeleteCalcOptionsExceptActive(waterModel);
-            MergeAlternativesToTheRoot(waterModel);
+            await MergeAlternativesToTheRootAsync(waterModel);
 
 
             pi.IncrementStep();
@@ -58,7 +59,7 @@ namespace OFW.ModelMerger.Support
         /// Merge All Alternatives to the root Alternative
         /// </summary>
         /// <param name="waterModel"></param>
-        public void MergeAlternativesToTheRoot(IWaterModel waterModel)
+        public async Task MergeAlternativesToTheRootAsync(IWaterModel waterModel)
         {
             var allAlternatviesMap = waterModel.AlternativeTypes().All;
             var baseAlternativesMap = waterModel.AlternativeTypes().BaseAlternativesMap;
@@ -86,7 +87,7 @@ namespace OFW.ModelMerger.Support
                         // Now merge alternative to the parent alternative
                         foreach (var alternative in orderedAlternatives)
                         {
-                            alternative.MergeAllParents();
+                            await alternative.MergeAllParentsAsync();
                         }
                     }                    
                 }

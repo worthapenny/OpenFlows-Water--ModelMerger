@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Haestad.Domain;
 using Haestad.Support.Support;
 using OpenFlows.Domain.ModelingElements;
@@ -202,7 +203,7 @@ namespace OFW.ModelMerger.Extentions
 
             bool IsActive();
             void Delete();
-            void MergeAllParents();
+            Task MergeAllParentsAsync();
             void AssignToActiveScenario(WaterAlternativeTypeEnum alternativeType, int alternativeId);
             //void AssignToNoScenario(WaterAlternativeTypeEnum alternativeType, IWaterAlternative alternative);
         }
@@ -245,7 +246,7 @@ namespace OFW.ModelMerger.Extentions
                 GetParentAlternativeIdChain(alternative.WoAlternative, ids);
                 return ids;
             }
-            public void MergeAllParents()
+            public async Task MergeAllParentsAsync()
             {
                 var parentAlternativeId = WoAlternative.ParentID;
 
@@ -256,7 +257,7 @@ namespace OFW.ModelMerger.Extentions
                     if (IsActive())
                         AssignToActiveScenario(AlternativeType, ParentId);                                        
 
-                    (WoAlternative.Manager as IAlternativeManager).Merge(Id);
+                    await Task.Run(() => (WoAlternative.Manager as IAlternativeManager).Merge(Id));
                     WoAlternative = WaterModel.DomainDataSet.AlternativeManager(WoAlternativeType.Id).Element(parentAlternativeId) as IAlternative;
                     parentAlternativeId = WoAlternative.ParentID;
                 }

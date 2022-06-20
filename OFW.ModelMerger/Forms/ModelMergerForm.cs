@@ -21,6 +21,7 @@ using Serilog;
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace OFW.ModelMerger.Forms
@@ -250,7 +251,7 @@ namespace OFW.ModelMerger.Forms
             modelMergeOptionControlSecondary.ProjectOpenExecuted += (o, e) =>
                 modelMergeOptionControlSecondary.OpenModel(OpenSecondaryModel);
 
-            modelMergeOptionControlPrimary.MergeExecuted += (s, e) => MergeModels();
+            modelMergeOptionControlPrimary.MergeExecuted += async (s, e) => await MergeModelsAsync();
 
             modelMergeOptionControlPrimary.ShowReportExecuted += (o, e) => ShowReport();
 
@@ -291,7 +292,7 @@ namespace OFW.ModelMerger.Forms
                 }
             }
         }
-        private void MergeModels()
+        private async Task MergeModelsAsync()
         {
             if (modelMergeOptionControlPrimary.ModelMergeOptionControlModel.WaterModel == null ||
                     modelMergeOptionControlSecondary.ModelMergeOptionControlModel.WaterModel == null)
@@ -306,7 +307,7 @@ namespace OFW.ModelMerger.Forms
             bool success = true;
             try
             {
-                ModelMergerFormModel.Merge(piForm);
+                await ModelMergerFormModel.MergeAsync(piForm);
 
                 // Suppress any prompts to save and treat the project as if no changes were made.
                 ((ProjectBase)modelMergeOptionControlPrimary.ModelMergeOptionControlModel.Project).MakeClean();

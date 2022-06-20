@@ -6,6 +6,7 @@ using OFW.ModelMerger.FormModel;
 using OpenFlows.Water.Domain;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace OFW.ModelMerger.Test
 {
@@ -34,7 +35,7 @@ namespace OFW.ModelMerger.Test
 
         #region Tests
         [Test]
-        public void TestMerge()
+        public async Task TestMergeAsync()
         {
             string example1 = Path.GetFullPath(BuildTestFilename($@"Example1.wtg"));
             string example5 = Path.GetFullPath(BuildTestFilename($@"Example5.wtg"));
@@ -87,7 +88,7 @@ namespace OFW.ModelMerger.Test
                 formModel.ModelMergeOptionControlModelSecondary.WaterModel.ActiveScenario;
 
             // Perform the merge
-            formModel.Merge(new NullProgressIndicator());
+            await formModel.MergeAsync(new NullProgressIndicator());
 
              
             // Selection Set

@@ -16,6 +16,7 @@ using OpenFlows.Water.Domain.ModelingElements.NetworkElements;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using static OFW.ModelMerger.Extentions.CalcOptionsExtensions;
 
 namespace OFW.ModelMerger.Test
@@ -53,11 +54,11 @@ namespace OFW.ModelMerger.Test
         #region Tests
 
         [Test]
-        public void SimplyfyAndModifyScenarioAltCalcsExceptActiveTest()
+        public async Task SimplyfyAndModifyScenarioAltCalcsExceptActiveTestAsync()
         {
             // Simplification Tests
             var simplifier = new SimplifyScenarioAltCalcs();
-            simplifier.Simplify(WaterModel, new LabelModificationOptions(), new NullProgressIndicator());
+            await simplifier.SimplifyAsync(WaterModel, new LabelModificationOptions(), new NullProgressIndicator());
 
             // scenario
             Assert.AreEqual(WaterModel.Scenarios.Count, 1);

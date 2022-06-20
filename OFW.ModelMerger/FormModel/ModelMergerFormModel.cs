@@ -16,6 +16,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace OFW.ModelMerger.FormModel
 {
@@ -28,7 +29,7 @@ namespace OFW.ModelMerger.FormModel
         #endregion
 
         #region Public Methods
-        public void Merge(IProgressIndicator pi)
+        public async Task MergeAsync(IProgressIndicator pi)
         {
             // Log input info
             ModelMergeOptionControlModelPrimary.LogProjectSummary("Primary");
@@ -38,7 +39,7 @@ namespace OFW.ModelMerger.FormModel
             var watch = new Stopwatch();
             watch.Start();
 
-            ModelMergeOptionControlModelPrimary.SimplifyScenarioAltCalcs(
+            await ModelMergeOptionControlModelPrimary.SimplifyScenarioAltCalcs(
                 ModelMergeOptionControlModelPrimary.Options, pi);
             Log.Information($"[1/6] Simplified Primary's Scenario Alternative and Calculation Options");
 
@@ -46,7 +47,7 @@ namespace OFW.ModelMerger.FormModel
             Log.Information($"[2/6] Modified Primary's model labels");
 
 
-            ModelMergeOptionControlModelSecondary.SimplifyScenarioAltCalcs(
+            await ModelMergeOptionControlModelSecondary.SimplifyScenarioAltCalcs(
                 ModelMergeOptionControlModelSecondary.Options, pi);
             Log.Information($"[3/6] Simplified Secondary's Scenario Alternative and Calculation Options");
 

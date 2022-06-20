@@ -28,15 +28,18 @@ namespace OFW.ModelMerger.UserControl
             toolStripButtonOpen.Image = ((Icon)GraphicResourceManager.Current[StandardGraphicResourceNames.Open]).ToBitmap();
             toolStripButtonSelectScenario.Image = ((Icon)GraphicResourceManager.Current[StandardGraphicResourceNames.Scenario]).ToBitmap();
             toolStripButtonImport.Image = ((Icon)GraphicResourceManager.Current[StandardGraphicResourceNames.Import]).ToBitmap();
+            toolStripButtonSimplify.Image = ((Icon)GraphicResourceManager.Current[StandardGraphicResourceNames.SnapshotDiffGeometryChanges]).ToBitmap();
             toolStripButtonShowReport.Image = ((Icon)GraphicResourceManager.Current[StandardGraphicResourceNames.Report]).ToBitmap();
             toolStripButtonSaveAs.Image = ((Icon)GraphicResourceManager.Current[StandardGraphicResourceNames.SaveAs]).ToBitmap();
                         
             toolStripButtonOpen.Click += (s, e) => { ProjectOpenExecuted?.Invoke(s, e); };
+            toolStripButtonSimplify.Click += (s, e) => { SimplifiyExecuted?.Invoke(s, e); };
             toolStripButtonImport.Click += (s, e) => { MergeExecuted?.Invoke(s, e); };
             toolStripButtonSaveAs.Click += (s, e) => { SaveAsExecuted?.Invoke(s, e); };
             toolStripButtonShowReport.Click += (s, e) => { ShowReportExecuted?.Invoke(s, e); };
             toolStripButtonSelectScenario.Click += (s, e) => { ShowScenarioSelectionDialogClicked?.Invoke(this, e); };
 
+            EnableControls(false);
         }
         #endregion
 
@@ -48,6 +51,7 @@ namespace OFW.ModelMerger.UserControl
             if (ModelMergeOptionControlModel.WaterModel == null) return;
 
             UpdateActiveScenario();
+            EnableControls(true);
             WaterApplicationManager.GetInstance().ParentFormModel.ScenarioEventChannel.ScenarioChanged += (s, e) => UpdateActiveScenario();
 
             textBoxShortName.DataBindings.Clear();
@@ -76,12 +80,14 @@ namespace OFW.ModelMerger.UserControl
         private TextBox textBoxShortName;
         private ToolStrip toolStrip1;
         private ToolStripButton toolStripButtonSelectScenario;
-        private ToolStripSeparator toolStripSeparator1;
+        private ToolStripSeparator toolStripSeparatorStandard;
         private ToolStripButton toolStripButtonImport;
         private ToolStripButton toolStripButtonSaveAs;
         private ToolStripButton toolStripButtonShowReport;
         private ToolTip toolTip1;
         private System.ComponentModel.IContainer components;
+        private ToolStripButton toolStripButtonSimplify;
+        private ToolStripSeparator toolStripSeparatorPrimary;
         private ToolStripButton toolStripButtonOpen;
 
 
@@ -96,8 +102,10 @@ namespace OFW.ModelMerger.UserControl
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButtonOpen = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonSelectScenario = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparatorStandard = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButtonImport = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButtonSimplify = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparatorPrimary = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButtonShowReport = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonSaveAs = new System.Windows.Forms.ToolStripButton();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
@@ -146,13 +154,15 @@ namespace OFW.ModelMerger.UserControl
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButtonOpen,
             this.toolStripButtonSelectScenario,
-            this.toolStripSeparator1,
+            this.toolStripSeparatorStandard,
             this.toolStripButtonImport,
+            this.toolStripButtonSimplify,
+            this.toolStripSeparatorPrimary,
             this.toolStripButtonShowReport,
             this.toolStripButtonSaveAs});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(235, 27);
+            this.toolStrip1.Size = new System.Drawing.Size(235, 25);
             this.toolStrip1.TabIndex = 4;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -162,7 +172,7 @@ namespace OFW.ModelMerger.UserControl
             this.toolStripButtonOpen.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonOpen.Image")));
             this.toolStripButtonOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonOpen.Name = "toolStripButtonOpen";
-            this.toolStripButtonOpen.Size = new System.Drawing.Size(24, 24);
+            this.toolStripButtonOpen.Size = new System.Drawing.Size(23, 22);
             this.toolStripButtonOpen.Text = "Open";
             // 
             // toolStripButtonSelectScenario
@@ -171,13 +181,13 @@ namespace OFW.ModelMerger.UserControl
             this.toolStripButtonSelectScenario.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonSelectScenario.Image")));
             this.toolStripButtonSelectScenario.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonSelectScenario.Name = "toolStripButtonSelectScenario";
-            this.toolStripButtonSelectScenario.Size = new System.Drawing.Size(24, 24);
+            this.toolStripButtonSelectScenario.Size = new System.Drawing.Size(23, 22);
             this.toolStripButtonSelectScenario.Text = "Select Scenario";
             // 
-            // toolStripSeparator1
+            // toolStripSeparatorStandard
             // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 27);
+            this.toolStripSeparatorStandard.Name = "toolStripSeparatorStandard";
+            this.toolStripSeparatorStandard.Size = new System.Drawing.Size(6, 25);
             // 
             // toolStripButtonImport
             // 
@@ -185,8 +195,22 @@ namespace OFW.ModelMerger.UserControl
             this.toolStripButtonImport.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonImport.Image")));
             this.toolStripButtonImport.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonImport.Name = "toolStripButtonImport";
-            this.toolStripButtonImport.Size = new System.Drawing.Size(24, 24);
+            this.toolStripButtonImport.Size = new System.Drawing.Size(23, 22);
             this.toolStripButtonImport.Text = "Import";
+            // 
+            // toolStripButtonSimplify
+            // 
+            this.toolStripButtonSimplify.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonSimplify.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonSimplify.Image")));
+            this.toolStripButtonSimplify.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonSimplify.Name = "toolStripButtonSimplify";
+            this.toolStripButtonSimplify.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonSimplify.Text = "toolStripButton1";
+            // 
+            // toolStripSeparatorPrimary
+            // 
+            this.toolStripSeparatorPrimary.Name = "toolStripSeparatorPrimary";
+            this.toolStripSeparatorPrimary.Size = new System.Drawing.Size(6, 25);
             // 
             // toolStripButtonShowReport
             // 
@@ -194,7 +218,7 @@ namespace OFW.ModelMerger.UserControl
             this.toolStripButtonShowReport.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonShowReport.Image")));
             this.toolStripButtonShowReport.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonShowReport.Name = "toolStripButtonShowReport";
-            this.toolStripButtonShowReport.Size = new System.Drawing.Size(24, 24);
+            this.toolStripButtonShowReport.Size = new System.Drawing.Size(23, 22);
             this.toolStripButtonShowReport.Text = "Report";
             this.toolStripButtonShowReport.Visible = false;
             // 
@@ -204,7 +228,7 @@ namespace OFW.ModelMerger.UserControl
             this.toolStripButtonSaveAs.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonSaveAs.Image")));
             this.toolStripButtonSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonSaveAs.Name = "toolStripButtonSaveAs";
-            this.toolStripButtonSaveAs.Size = new System.Drawing.Size(24, 24);
+            this.toolStripButtonSaveAs.Size = new System.Drawing.Size(23, 22);
             this.toolStripButtonSaveAs.Text = "Save As";
             // 
             // ModelMergeOptionControl
@@ -227,6 +251,7 @@ namespace OFW.ModelMerger.UserControl
 
         #region Public Events
         public event EventHandler MergeExecuted;
+        public event EventHandler SimplifiyExecuted;
         public event EventHandler SaveAsExecuted;
         public event EventHandler ProjectOpenExecuted;
         public event EventHandler ShowReportExecuted;
@@ -239,6 +264,15 @@ namespace OFW.ModelMerger.UserControl
         {
             textBoxShortName.Focus();
         }
+        public void EnableControls(bool enable)
+        {
+            toolStripButtonSelectScenario.Enabled = enable;
+            toolStripButtonImport.Enabled = enable;
+            toolStripButtonSimplify.Enabled = enable;
+            toolStripButtonSaveAs.Enabled = enable;
+            toolStripButtonShowReport.Enabled = enable;
+            toolStripSeparatorPrimary.Enabled = enable;
+        }
         #endregion
 
         #region Public Properties
@@ -247,9 +281,11 @@ namespace OFW.ModelMerger.UserControl
         {
             get { return toolStripButtonImport.Visible; }
             set { 
-                toolStripButtonImport.Visible = value; 
+                toolStripButtonImport.Visible = value;
+                toolStripButtonSimplify.Visible = value;
                 toolStripButtonSaveAs.Visible = value; 
                 toolStripButtonShowReport.Visible = value;
+                toolStripSeparatorPrimary.Visible = value;
             }
         }
         #endregion
